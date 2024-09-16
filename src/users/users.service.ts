@@ -14,8 +14,8 @@ export class UsersService {
         return `name: ${name}, email: ${email}, password: ${password}`;
     }
 
-    update(id: number) {
-        return `this is update id: ${id}`;
+    update(data: any) {
+        return `this is update id: ${data.name}`;
     }
 
     delete(id: number) {
