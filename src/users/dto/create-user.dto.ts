@@ -20,6 +20,6 @@ export class CreateUserDto{
 
     password: string;
 
-    profile_image:Text;
+    profile_image:string;
 
 }

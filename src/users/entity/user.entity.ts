@@ -1,10 +1,9 @@
-import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { CustomBaseEntity } from "src/common/entities/common-entitie";
+import { Role } from "src/roles/entity/role.entity";
+import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class User extends BaseEntity{
-
-    @PrimaryGeneratedColumn()
-    id:number
+export class User extends CustomBaseEntity{
 
     @Column()
     user_email: string;
@@ -37,7 +36,19 @@ export class User extends BaseEntity{
     @Column()
     profile_image:string;
 
-    
+    @ManyToMany(() => Role, (_) => _.user)
+    @JoinTable({
+        name: "user_role",
+        joinColumn: {
+            name: "user_id",
+            referencedColumnName: "id"
+        },
+        inverseJoinColumn: {
+            name: "role_id",
+            referencedColumnName: "id"
+        }
+    })
+    role: Array<Role>;
     constructor(partial?: Partial<User>) {
         super();
         if (partial) {

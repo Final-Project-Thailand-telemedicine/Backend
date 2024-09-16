@@ -12,8 +12,12 @@ export class UsersService {
         private userRepository: Repository<User>) {
     }
 
-    getbyId(id: number) {
-        return `get by id: ${id}`;
+    async getbyId(id: number) {
+        const user = await this.userRepository.findOneBy({ id });
+        // console.log(user);
+        
+        if(!user) throw new BadRequestException('user not found');
+        return user;
     }
 
     async create(data: any) {
