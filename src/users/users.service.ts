@@ -14,13 +14,20 @@ export class UsersService {
         private userRepository: Repository<User>,
         @InjectRepository(Role)
         private roleReopository: Repository<Role>
-    ) {}
+    ) { }
 
+
+    findByUsername(user_name: string) {
+        return this.userRepository.findOne({
+            where: { user_name },
+            relations: { role: {} }
+        });
+    }
     async getbyId(id: number) {
         const user = await this.userRepository.findOneBy({ id });
         // console.log(user);
-        
-        if(!user) throw new BadRequestException('user not found');
+
+        if (!user) throw new BadRequestException('user not found');
         return user;
     }
 
@@ -28,10 +35,10 @@ export class UsersService {
         const usernameIsExist = await this.userRepository.existsBy({ user_name: createUserDto.user_name });
         if (usernameIsExist) throw new BadRequestException('username already exists');
 
-        const {roleId} = createUserDto;
+        const { roleId } = createUserDto;
 
-        const role = await this.roleReopository.findOneBy({id:roleId});
-        if(!role) throw new BadRequestException('role not found');
+        const role = await this.roleReopository.findOneBy({ id: roleId });
+        if (!role) throw new BadRequestException('role not found');
 
         const hash = await argon2.hash(createUserDto.password);
         const user = this.userRepository.create({
@@ -44,11 +51,11 @@ export class UsersService {
                 where: { id: roleId },
             });
             console.log(role);
-            
+
             user.role = role;
         }
         console.log(user);
-        
+
         return this.userRepository.save(user);
     }
 
@@ -59,5 +66,11 @@ export class UsersService {
     delete(id: number) {
         return `this is delete id: ${id}`;
     }
+
+    // async updateRefreshToken(userId: number, token: string) {
+    //     await this.userRepository.update(userId, {
+    //       refreshToken: token,
+    //     });
+    //   }
 
 }
