@@ -3,6 +3,7 @@ import { User } from './entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as argon2 from 'argon2';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -20,13 +21,13 @@ export class UsersService {
         return user;
     }
 
-    async create(data: any) {
-        const usernameIsExist = await this.userRepository.existsBy({ user_name: data.user_name });
+    async create(createUserDto: CreateUserDto) {
+        const usernameIsExist = await this.userRepository.existsBy({ user_name: createUserDto.user_name });
         if (usernameIsExist) throw new BadRequestException('username already exists');
 
-        const hash = await argon2.hash(data.password);
+        const hash = await argon2.hash(createUserDto.password);
         const user = this.userRepository.create({
-            ...data,
+            ...createUserDto,
             password: hash,
         });
         console.log(user);

@@ -8,7 +8,10 @@ export class Role extends CustomBaseEntity{
     @Column()
     @Index({ unique: true })
     name: string;
-
+    
+    @Column()
+    description: string;
+    
     @ManyToMany(() => User, (_) => _.role)
     user: Array<User>;
 
@@ -25,4 +28,11 @@ export class Role extends CustomBaseEntity{
         }
     })
     permission: Array<Permission>;
+
+    constructor(partial?: Partial<Role>) {
+        super();
+        if (partial) {
+            Object.assign(this, partial)
+        }
+    }
 }
