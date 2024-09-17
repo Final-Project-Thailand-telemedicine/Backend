@@ -22,4 +22,6 @@ export class CreateUserDto{
 
     profile_image:string;
 
+    roleId:number;
+
 }

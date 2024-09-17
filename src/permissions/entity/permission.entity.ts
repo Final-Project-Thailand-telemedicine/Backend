@@ -8,6 +8,9 @@ export class Permission extends CustomBaseEntity{
     @Index({ unique: true })
     name: string;
 
+    @Column()
+    description: string;
+
     @ManyToMany(() => Role, (_) => _.permission)
     role: Array<Role>;
 }

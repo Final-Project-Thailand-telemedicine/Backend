@@ -4,14 +4,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as argon2 from 'argon2';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Role } from 'src/roles/entity/role.entity';
 
 @Injectable()
 export class UsersService {
 
     constructor(
         @InjectRepository(User)
-        private userRepository: Repository<User>) {
-    }
+        private userRepository: Repository<User>,
+        @InjectRepository(Role)
+        private roleReopository: Repository<Role>
+    ) {}
 
     async getbyId(id: number) {
         const user = await this.userRepository.findOneBy({ id });
@@ -25,11 +28,25 @@ export class UsersService {
         const usernameIsExist = await this.userRepository.existsBy({ user_name: createUserDto.user_name });
         if (usernameIsExist) throw new BadRequestException('username already exists');
 
+        const {roleId} = createUserDto;
+
+        const role = await this.roleReopository.findOneBy({id:roleId});
+        if(!role) throw new BadRequestException('role not found');
+
         const hash = await argon2.hash(createUserDto.password);
         const user = this.userRepository.create({
             ...createUserDto,
             password: hash,
         });
+
+        if (roleId) {
+            const role = await this.roleReopository.find({
+                where: { id: roleId },
+            });
+            console.log(role);
+            
+            user.role = role;
+        }
         console.log(user);
         
         return this.userRepository.save(user);
