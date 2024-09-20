@@ -15,14 +15,16 @@ export class AuthService {
     ) { }
 
     async signIn(authDto: AuthDto) {
+        console.log(authDto);
+        
         const user = await this.usersService.findByUsername(authDto.user_name);
         if (!user) throw new UnauthorizedException('username or password is not correct');
 
         const passwordMatches = await argon2.verify(user.password, authDto.password);
         if (!passwordMatches) throw new UnauthorizedException('username or password is not correct');
 
-        const tokens = await this.getTokens(user.id, user.user_name);
-        // await this.updateRefreshToken(user.id, tokens.refreshToken);
+        const tokens = await this.getTokens(user.id, user.user_name, user.role[0].name);
+        await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return {
             ...tokens,
@@ -31,10 +33,10 @@ export class AuthService {
         };
     }
 
-    async getTokens(userId: number, username: string) {
+    async getTokens(userId: number, username: string, role: string) {
         const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.signAsync({ sub: userId, username }, { secret: this.configService.get('JWT_ACCESS_SECRET'), expiresIn: '1y' }),
-            this.jwtService.signAsync({ sub: userId, username }, { secret: this.configService.get('JWT_REFRESH_SECRET'), expiresIn: '2y' })
+            this.jwtService.signAsync({ Uid: userId, username,role:role }, { secret: this.configService.get<string>('JWT_ACCESS_SECRET'), expiresIn: '1y' }),
+            this.jwtService.signAsync({ Uid: userId, username,role:role }, { secret: this.configService.get<string>('JWT_REFRESH_SECRET'), expiresIn: '2y' })
         ]);
 
         return {
@@ -43,8 +45,8 @@ export class AuthService {
         };
     }
 
-    // async updateRefreshToken(userId: number, refreshToken: string) {
-    //     const hash = await argon2.hash(refreshToken);
-    //     await this.usersService.updateRefreshToken(userId, hash)
-    // }
+    async updateRefreshToken(userId: number, refreshToken: string) {
+        const hash = await argon2.hash(refreshToken);
+        await this.usersService.updateRefreshToken(userId, hash)
+    }
 }

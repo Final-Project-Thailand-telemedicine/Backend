@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { CustomBaseEntity } from "src/common/entities/common-entitie";
 import { Role } from "src/roles/entity/role.entity";
 import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
@@ -35,6 +36,10 @@ export class User extends CustomBaseEntity{
 
     @Column()
     profile_image:string;
+
+    @Exclude()
+    @Column({ name: 'refresh_token', nullable: true })
+    refreshToken: string;
 
     @ManyToMany(() => Role, (_) => _.user)
     @JoinTable({

@@ -67,10 +67,10 @@ export class UsersService {
         return `this is delete id: ${id}`;
     }
 
-    // async updateRefreshToken(userId: number, token: string) {
-    //     await this.userRepository.update(userId, {
-    //       refreshToken: token,
-    //     });
-    //   }
+    async updateRefreshToken(userId: number, token: string) {
+        await this.userRepository.update(userId, {
+            refreshToken: token,
+        });
+    }
 
 }
