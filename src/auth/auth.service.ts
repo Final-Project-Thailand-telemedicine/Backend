@@ -28,8 +28,6 @@ export class AuthService {
 
         return {
             ...tokens,
-            // name: user.fullname,
-            // role: user.role.name
         };
     }
 

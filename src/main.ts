@@ -6,8 +6,10 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api/v0');
   app.useGlobalPipes(new ValidationPipe());
 
+  app.enableCors();
   const config = new DocumentBuilder()
   .setTitle('Medicare API')
   // .setDescription('The cats API description')

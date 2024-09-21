@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { User } from './entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import * as argon2 from 'argon2';
-import { CreateUserDto } from './dto/create-user.dto';
 import { Role } from 'src/roles/entity/role.entity';
+import { Repository } from 'typeorm';
+import { CreateUserDto } from './dto/create-user.dto';
+import { User } from './entity/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -24,8 +24,13 @@ export class UsersService {
         });
     }
     async getbyId(id: number) {
-        const user = await this.userRepository.findOneBy({ id });
-        // console.log(user);
+        const user = await this.userRepository.findOne({ 
+            where: { id },
+            relations: ["role"],
+            select: {
+                // id: true,
+            }
+        });
 
         if (!user) throw new BadRequestException('user not found');
         return user;
