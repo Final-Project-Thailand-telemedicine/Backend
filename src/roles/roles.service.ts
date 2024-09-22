@@ -90,4 +90,15 @@ export class RolesService {
         return role.permission;
     }
 
+    async delete(id: number): Promise<Role> {
+        const role = await this.roleRepository.findOne({ where: { id } });
+        if (!role) {
+            throw new Error('Role not found');
+        }
+        return this.roleRepository.remove(role);
+    }
+
+    async getRoles(): Promise<Role[]> {
+        return this.roleRepository.find();
+    }
 }
