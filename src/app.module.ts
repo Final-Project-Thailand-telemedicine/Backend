@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from "./config/typeorm.config"
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { UploadModule } from './upload/upload.module';
 @Module({
   imports: [UsersModule,
     RolesModule,
@@ -19,7 +20,8 @@ import { ConfigModule } from '@nestjs/config';
     , TypeOrmModule.forRoot(
       typeOrmConfig
     ),
-    AuthModule
+    AuthModule,
+    UploadModule
   ],
   controllers: [AppController],
   providers: [AppService],
