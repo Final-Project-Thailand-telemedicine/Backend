@@ -1,37 +1,37 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto'; // Ensure this DTO is created for user registration
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangeFormatToJsonPipe } from 'src/pipes/change-format-to-json/change-format-to-json.pipe';
-import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
+
     @ApiOperation({ summary: 'ดูข้อมูล User' })
     @Get("/:id")
-    getUsers(@Param('id') id:number) {
+    getUsers(@Param('id') id: number) {
         return this.usersService.getbyId(id);
     }
 
     @ApiOperation({ summary: 'สร้าง User' })
-    @Post()
-    @UsePipes(new ChangeFormatToJsonPipe())
-    createUser(@Body() createUserDto: CreateUserDto) {
+    @Post('register')
+    @UsePipes(new ValidationPipe())
+    async register(@Body() createUserDto: CreateUserDto) {
         return this.usersService.create(createUserDto);
     }
 
-    @ApiOperation({ summary: 'แก้ไขข้อมูล User' })
+    @ApiOperation({ summary: 'แก้ไขข้อมูล User' }) // "Update User Information"
     @Patch("/:id")
-    updateUser(@Param('id') id:number,@Body() updateUserDto:UpdateUserDto) {
-        return this.usersService.update(updateUserDto);
+    async updateUser(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+        return this.usersService.update(id, updateUserDto);
     }
 
     @ApiOperation({ summary: 'ลบ User' })
     @Delete("/:id")
-    deleteUser(@Param('id') id:number) {
+    deleteUser(@Param('id') id: number) {
         return this.usersService.delete(id);
     }
-
 }
