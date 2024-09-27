@@ -9,6 +9,9 @@ import { typeOrmConfig } from "./config/typeorm.config"
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UploadModule } from './upload/upload.module';
+import { PerusalModule } from './perusal/perusal.module';
+import { DiagnosisModule } from './diagnosis/diagnosis.module';
+import { WoundModule } from './wound/wound.module';
 @Module({
   imports: [UsersModule,
     RolesModule,
@@ -21,7 +24,10 @@ import { UploadModule } from './upload/upload.module';
       typeOrmConfig
     ),
     AuthModule,
-    UploadModule
+    UploadModule,
+    PerusalModule,
+    DiagnosisModule,
+    WoundModule
   ],
   controllers: [AppController],
   providers: [AppService],
