@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as argon2 from 'argon2';
 import { Role } from 'src/roles/entity/role.entity';
@@ -9,12 +9,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
+
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
         @InjectRepository(Role)
         private roleReopository: Repository<Role>
-    ) {}
+    ) { }
 
     // Method to find a user by username
     findByUsername(user_name: string) {
@@ -26,7 +27,7 @@ export class UsersService {
 
     // Method to get a user by ID
     async getbyId(id: number) {
-        const user = await this.userRepository.findOne({ 
+        const user = await this.userRepository.findOne({
             where: { id },
             relations: ["role"],
         });
@@ -66,18 +67,25 @@ export class UsersService {
     }
 
     // Method to update a user (implementation needed)
-async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) throw new BadRequestException('User not found');
+    async update(id: number, updateUserDto: UpdateUserDto) {
+        const user = await this.userRepository.findOne({ where: { id } });
+        if (!user) throw new BadRequestException('User not found');
 
-    // Update only fields that are provided in the updateUserDto
-    Object.assign(user, updateUserDto);
-    return this.userRepository.save(user);
-}
+        // Update only fields that are provided in the updateUserDto
+        Object.assign(user, updateUserDto);
+        return this.userRepository.save(user);
+    }
 
     // Method to delete a user (implementation needed)
     async delete(id: number) {
-        return `This is delete id: ${id}`;
+        const user = await this.getbyId(id)
+        if (!user) throw new NotFoundException("user not found");
+
+        const date = new Date().valueOf();
+
+        await this.userRepository.update(id, {});
+
+        await this.userRepository.softDelete(id);
     }
 
     // Method to update refresh token (if needed)
