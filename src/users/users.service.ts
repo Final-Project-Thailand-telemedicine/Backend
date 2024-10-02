@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entity/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
+import {Helper} from "src/common/helper";
 
 @Injectable()
 export class UsersService {
@@ -39,8 +40,12 @@ export class UsersService {
     // Modified create method to handle user registration
     async create(createUserDto: CreateUserDto) {
         // Check if username already exists
-        const usernameExists = await this.userRepository.findOne({ where: { user_name: createUserDto.user_name } });
-        if (usernameExists) throw new BadRequestException('Username already exists');
+        const SSIDExists = await this.userRepository.findOne({ where: { ssid: createUserDto.ssid } });
+        if (SSIDExists) throw new BadRequestException('SSID already exists');
+
+        //check format SSID
+        const check = Helper.validateThaiSSID(String(createUserDto.ssid));
+        if (!check) throw new BadRequestException('Invalid SSID format');
 
         // Check if email already exists
         const emailExists = await this.userRepository.findOne({ where: { user_email: createUserDto.user_email } });
@@ -93,5 +98,10 @@ export class UsersService {
         await this.userRepository.update(userId, {
             refreshToken: token,
         });
+    }
+
+    async checkssid(ssid: string) {
+        const check = Helper.validateThaiSSID(ssid);
+        return check;
     }
 }
