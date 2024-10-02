@@ -1,7 +1,8 @@
 import { Exclude } from "class-transformer";
 import { CustomBaseEntity } from "src/common/entities/common-entitie";
+import { Perusal } from "src/perusal/entity/perusal.entity";
 import { Role } from "src/roles/entity/role.entity";
-import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User extends CustomBaseEntity{
@@ -54,6 +55,10 @@ export class User extends CustomBaseEntity{
         }
     })
     role: Array<Role>;
+
+    @OneToMany(() => Perusal, (_) => _.user)
+    perusal: Array<Perusal>;
+    
     constructor(partial?: Partial<User>) {
         super();
         if (partial) {

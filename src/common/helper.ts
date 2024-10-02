@@ -50,6 +50,25 @@ export class Helper {
             .update(str, 'utf8')
             .digest(encoding || 'hex');
     }
+
+    static validateThaiSSID(ssid: string) {
+    // Check if the input is exactly 13 digits long
+    if (!/^\d{13}$/.test(ssid)) {
+        return false;
+    }
+
+    let sum = 0;
+    // Calculate the checksum using the first 12 digits
+    for (let i = 0; i < 12; i++) {
+        sum += parseInt(ssid.charAt(i)) * (13 - i);
+    }
+
+    // Modulo 11 and subtract from 11 to get the check digit
+    let checkDigit = (11 - (sum % 11)) % 10;
+
+    // Compare the calculated check digit with the 13th digit
+    return checkDigit === parseInt(ssid.charAt(12));
+    }
 }
 
 

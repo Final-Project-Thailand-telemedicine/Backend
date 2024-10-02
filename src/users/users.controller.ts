@@ -34,4 +34,10 @@ export class UsersController {
     deleteUser(@Param('id') id: number) {
         return this.usersService.delete(id);
     }
+
+    @ApiOperation({ summary: 'check SSID' })
+    @Get("/ssid/:ssid")
+    checkssid(@Param('ssid') ssid: string) {
+        return this.usersService.checkssid(ssid);
+    }
 }

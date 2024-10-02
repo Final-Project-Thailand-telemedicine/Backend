@@ -2,7 +2,8 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class CreatePermission {
     @ApiProperty()
-    name: string;
+    readonly name: string;
+    
     @ApiProperty()
-    description: string;
+    readonly description: string;
 }
