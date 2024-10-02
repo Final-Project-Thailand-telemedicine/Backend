@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 {
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#1a1a1a",
@@ -20,3 +21,5 @@
     },
     "peacock.color": "#000000"
 }
+=======
+>>>>>>> Stashed changes
