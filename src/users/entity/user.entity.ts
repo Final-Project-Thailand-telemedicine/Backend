@@ -7,18 +7,12 @@ import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, OneToMany, Pr
 @Entity()
 export class User extends CustomBaseEntity{
 
-    @Column()
-    user_email: string;
 
     @Column()
     ssid: number;
 
     @Column()
     sex: string;
-
-    @Column()
-    @Index({ unique: true })
-    user_name: string;
 
     @Column()
     phone: number;
