@@ -19,9 +19,9 @@ export class UsersService {
     ) { }
 
     // Method to find a user by username
-    findByUsername(user_name: string) {
+    findBySSID(ssid: number) {
         return this.userRepository.findOne({
-            where: { user_name },
+            where: { ssid },
             relations: { role: {} }
         });
     }
@@ -46,10 +46,6 @@ export class UsersService {
         //check format SSID
         const check = Helper.validateThaiSSID(String(createUserDto.ssid));
         if (!check) throw new BadRequestException('Invalid SSID format');
-
-        // Check if email already exists
-        const emailExists = await this.userRepository.findOne({ where: { user_email: createUserDto.user_email } });
-        if (emailExists) throw new BadRequestException('Email already exists');
 
         // Hash the password
         const hashedPassword = await argon2.hash(createUserDto.password);

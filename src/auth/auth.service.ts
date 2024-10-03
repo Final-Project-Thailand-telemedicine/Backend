@@ -17,13 +17,13 @@ export class AuthService {
     async signIn(authDto: AuthDto) {
         console.log(authDto);
 
-        const user = await this.usersService.findByUsername(authDto.user_name);
-        if (!user) throw new UnauthorizedException('username or password is not correct');
+        const user = await this.usersService.findBySSID(authDto.ssid);
+        if (!user) throw new UnauthorizedException('ssid or password is not correct');
 
         const passwordMatches = await argon2.verify(user.password, authDto.password);
-        if (!passwordMatches) throw new UnauthorizedException('username or password is not correct');
+        if (!passwordMatches) throw new UnauthorizedException('ssid or password is not correct');
 
-        const tokens = await this.getTokens(user.id, user.user_name, user.role[0].name);
+        const tokens = await this.getTokens(user.id, user.ssid, user.role[0].name);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return {
@@ -31,10 +31,10 @@ export class AuthService {
         };
     }
 
-    async getTokens(userId: number, username: string, role: string) {
+    async getTokens(userId: number, ssid: number, role: string) {
         const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.signAsync({ Uid: userId, username, role: role }, { secret: this.configService.get<string>('JWT_ACCESS_SECRET'), expiresIn: '1y' }),
-            this.jwtService.signAsync({ Uid: userId, username, role: role }, { secret: this.configService.get<string>('JWT_REFRESH_SECRET'), expiresIn: '2y' })
+            this.jwtService.signAsync({ Uid: userId, ssid, role: role }, { secret: this.configService.get<string>('JWT_ACCESS_SECRET'), expiresIn: '1y' }),
+            this.jwtService.signAsync({ Uid: userId, ssid, role: role }, { secret: this.configService.get<string>('JWT_REFRESH_SECRET'), expiresIn: '2y' })
         ]);
 
         return {
@@ -70,7 +70,7 @@ export class AuthService {
             refreshToken,
         );
         if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
-        const tokens = await this.getTokens(user.id, user.user_name, user.role[0].name);
+        const tokens = await this.getTokens(user.id, user.ssid, user.role[0].name);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
         return tokens;
     }
@@ -78,10 +78,10 @@ export class AuthService {
     async signInWithToken(accessToken: string) {
         const data = this.jwtService.decode(accessToken);
 
-        const user = await this.usersService.findByUsername(data.username);
+        const user = await this.usersService.findBySSID(data.username);
         if (!user) throw new UnauthorizedException('user not found');
 
-        const tokens = await this.getTokens(user.id, user.user_name, user.role[0].name);
+        const tokens = await this.getTokens(user.id, user.ssid, user.role[0].name);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
         return tokens;
     }
