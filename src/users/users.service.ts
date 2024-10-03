@@ -47,10 +47,6 @@ export class UsersService {
         const check = Helper.validateThaiSSID(String(createUserDto.ssid));
         if (!check) throw new BadRequestException('Invalid SSID format');
 
-        // Check if email already exists
-        const emailExists = await this.userRepository.findOne({ where: { user_email: createUserDto.user_email } });
-        if (emailExists) throw new BadRequestException('Email already exists');
-
         // Hash the password
         const hashedPassword = await argon2.hash(createUserDto.password);
 
