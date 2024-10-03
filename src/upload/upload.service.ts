@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Upload } from './entities/upload.entity';
 import { Repository } from 'typeorm';
@@ -22,11 +22,11 @@ export class UploadService {
     async remove(id: number) {
         const upload = await this.uploadRepository.findOneBy({ id });
 
-        if (!upload) throw new Error('File not found');
+        if (!upload) throw new NotFoundException('File not found');
         
         if (existsSync(upload.path)) {
             unlinkSync(upload.path);
-        }else throw new Error('File not found');
+        }else throw new NotFoundException('File not found');
 
         return await this.uploadRepository.delete(id);
     }
