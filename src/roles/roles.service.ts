@@ -31,7 +31,7 @@ export class RolesService {
             role.permission = permissions;
         }
 
-        return this.roleRepository.save(role);
+        return await this.roleRepository.save(role);
     }
 
     async update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role> {
@@ -39,7 +39,7 @@ export class RolesService {
 
         const role = await this.roleRepository.findOne({ where: { id }, relations: ['permissions'] });
         if (!role) {
-            throw new Error('Role not found');
+            throw new NotFoundException('Role not found');
         }
 
         if (name) role.name = name;
@@ -51,7 +51,7 @@ export class RolesService {
             });
             role.permission = permissions;
         }
-        return this.roleRepository.save(role);
+        return await this.roleRepository.save(role);
 
     }
 
@@ -64,7 +64,7 @@ export class RolesService {
         }
 
         role.permission.push(permission);
-        return this.roleRepository.save(role);
+        return await this.roleRepository.save(role);
     }
 
     async removePermissionFromRole(roleId: number, permissionId: number): Promise<Role> {
@@ -75,7 +75,7 @@ export class RolesService {
         }
 
         role.permission = role.permission.filter(p => p.id !== permissionId);
-        return this.roleRepository.save(role);
+        return await this.roleRepository.save(role);
     }
 
     async getPermissionsForRole(roleId: number): Promise<Permission[]> {
@@ -93,12 +93,12 @@ export class RolesService {
     async delete(id: number): Promise<Role> {
         const role = await this.roleRepository.findOne({ where: { id } });
         if (!role) {
-            throw new Error('Role not found');
+            throw new NotFoundException('Role not found');
         }
-        return this.roleRepository.remove(role);
+        return await this.roleRepository.remove(role);
     }
 
     async getRoles(): Promise<Role[]> {
-        return this.roleRepository.find();
+        return await this.roleRepository.find();
     }
 }

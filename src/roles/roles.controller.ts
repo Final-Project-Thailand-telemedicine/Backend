@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/commo
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { UpdateRoleDto } from './dto/update-role.dto';
 
 @ApiTags('Roles')
 @Controller('roles')
@@ -16,7 +17,7 @@ export class RolesController {
 
     @ApiOperation({ summary: 'อัพเดท Role' })
     @Patch('/:id')
-    updateRole(@Body() updateRoleDto: CreateRoleDto, @Param('id') id: number) {
+    updateRole(@Body() updateRoleDto: UpdateRoleDto, @Param('id') id: number) {
         return this.rolesService.update(id, updateRoleDto);
     }
 
