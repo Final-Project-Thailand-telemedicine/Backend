@@ -31,7 +31,7 @@ export class AuthService {
         };
     }
 
-    async getTokens(userId: number, ssid: number, role: string) {
+    async getTokens(userId: number, ssid: string, role: string) {
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync({ Uid: userId, ssid, role: role }, { secret: this.configService.get<string>('JWT_ACCESS_SECRET'), expiresIn: '1y' }),
             this.jwtService.signAsync({ Uid: userId, ssid, role: role }, { secret: this.configService.get<string>('JWT_REFRESH_SECRET'), expiresIn: '2y' })

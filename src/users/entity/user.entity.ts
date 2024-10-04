@@ -7,9 +7,8 @@ import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, OneToMany, Pr
 @Entity()
 export class User extends CustomBaseEntity{
 
-
     @Column()
-    ssid: number;
+    ssid: string;
 
     @Column()
     sex: string;
@@ -27,6 +26,7 @@ export class User extends CustomBaseEntity{
     birthdate: Date;
 
     @Column()
+    @Exclude()
     password: string;
 
     @Column()
