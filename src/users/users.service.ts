@@ -19,7 +19,7 @@ export class UsersService {
     ) { }
 
     // Method to find a user by username
-    findBySSID(ssid: number) {
+    findBySSID(ssid: string) {
         return this.userRepository.findOne({
             where: { ssid },
             relations: { role: {} }

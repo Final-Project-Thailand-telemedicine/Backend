@@ -20,6 +20,7 @@ export class UsersController {
     @Post('register')
     @UsePipes(new ValidationPipe())
     async register(@Body() createUserDto: CreateUserDto) {
+        console.log('Received registration data:', createUserDto);
         return this.usersService.create(createUserDto);
     }
 

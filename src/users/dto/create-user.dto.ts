@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 export class CreateUserDto{
 
     @ApiProperty()
-    readonly ssid: number;
+    readonly ssid: string;
 
     @ApiProperty()
     readonly sex: string;

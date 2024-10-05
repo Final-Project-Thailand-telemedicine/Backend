@@ -4,7 +4,7 @@ import { IsNotEmpty } from "class-validator";
 export class AuthDto {
     @IsNotEmpty()
     @ApiProperty()
-    readonly ssid: number;
+    readonly ssid: string;
     
     @IsNotEmpty()
     @ApiProperty()

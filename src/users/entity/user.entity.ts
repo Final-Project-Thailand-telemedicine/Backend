@@ -9,7 +9,7 @@ export class User extends CustomBaseEntity{
 
 
     @Column()
-    ssid: number;
+    ssid: string;
 
     @Column()
     sex: string;
