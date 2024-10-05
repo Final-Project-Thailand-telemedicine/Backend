@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto'; // Ensure this DTO is cre
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangeFormatToJsonPipe } from 'src/pipes/change-format-to-json/change-format-to-json.pipe';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -39,5 +40,12 @@ export class UsersController {
     @Get("/ssid/:ssid")
     checkssid(@Param('ssid') ssid: string) {
         return this.usersService.checkssid(ssid);
+    }
+
+    @ApiOperation({ summary: 'Profile User' })
+    @Get("/profile/:id")
+    @Auth()
+    getProfile(@Param('id') id: number) {
+        return this.usersService.getProfile(id);
     }
 }

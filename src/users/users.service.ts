@@ -37,6 +37,17 @@ export class UsersService {
         return user;
     }
 
+    async getProfile(id: number) {
+        const user = await this.userRepository.findOne({
+            where: { id },
+            relations: ["role"],
+            select: ["id","first_name", "last_name","ssid","profile_image"],
+        });
+
+        if (!user) throw new BadRequestException('User not found');
+        return user;
+    }
+
     // Modified create method to handle user registration
     async create(createUserDto: CreateUserDto) {
         // Check if username already exists
