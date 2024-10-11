@@ -14,7 +14,7 @@ export class User extends CustomBaseEntity{
     sex: string;
 
     @Column()
-    phone: number;
+    phone: string;
 
     @Column()
     first_name: string;

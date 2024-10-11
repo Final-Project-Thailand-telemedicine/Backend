@@ -9,7 +9,7 @@ export class CreateUserDto{
     readonly sex: string;
 
     @ApiProperty()
-    readonly phone: number;
+    readonly phone: string;
 
     @ApiProperty()
     readonly first_name: string;

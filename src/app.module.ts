@@ -12,6 +12,7 @@ import { UploadModule } from './upload/upload.module';
 import { PerusalModule } from './perusal/perusal.module';
 import { DiagnosisModule } from './diagnosis/diagnosis.module';
 import { WoundModule } from './wound/wound.module';
+import { SeederModule } from './seeder/seeder.module';
 @Module({
   imports: [UsersModule,
     RolesModule,
@@ -27,7 +28,8 @@ import { WoundModule } from './wound/wound.module';
     UploadModule,
     PerusalModule,
     DiagnosisModule,
-    WoundModule
+    WoundModule,
+    SeederModule
   ],
   controllers: [AppController],
   providers: [AppService],
