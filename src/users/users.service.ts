@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entity/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
-import {Helper} from "src/common/helper";
+import { Helper } from "src/common/helper";
 
 @Injectable()
 export class UsersService {
@@ -41,7 +41,7 @@ export class UsersService {
         const user = await this.userRepository.findOne({
             where: { id },
             relations: ["role"],
-            select: ["id","first_name", "last_name","ssid","profile_image"],
+            select: ["id", "first_name", "last_name", "ssid", "profile_image"],
         });
 
         if (!user) throw new BadRequestException('User not found');
@@ -78,14 +78,20 @@ export class UsersService {
         return this.userRepository.save(user);
     }
 
-    // Method to update a user (implementation needed)
+
     async update(id: number, updateUserDto: UpdateUserDto) {
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new BadRequestException('User not found');
+        if(updateUserDto.password){
+            const hashedPassword = await argon2.hash(updateUserDto.password);
 
-        // Update only fields that are provided in the updateUserDto
-        Object.assign(user, updateUserDto);
-        return this.userRepository.save(user);
+            return this.userRepository.update(id,{
+                ...user,
+                password:hashedPassword
+            });
+        }
+        return this.userRepository.update(id, updateUserDto);
+        
     }
 
     // Method to delete a user (implementation needed)
@@ -107,6 +113,24 @@ export class UsersService {
         });
     }
 
+    async addRoleToUser(userId: number, roleId: number): Promise<User> {
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['role'],
+        });
+        if (!user) throw new NotFoundException('User not found');
+
+        const role = await this.roleReopository.findOne({ where: { id: roleId } });
+        if (!role) throw new NotFoundException('Role not found');
+
+        if (user.role.some(existingRole => existingRole.id === role.id)) {
+            // Role already assigned to user
+            return user;
+        }
+
+        user.role.push(role);
+        return this.userRepository.save(user);
+    }
     async checkssid(ssid: string) {
         const check = Helper.validateThaiSSID(ssid);
         return check;

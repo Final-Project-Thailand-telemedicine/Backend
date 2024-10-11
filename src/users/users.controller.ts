@@ -48,4 +48,10 @@ export class UsersController {
     getProfile(@Param('id') id: number) {
         return this.usersService.getProfile(id);
     }
+
+    @ApiOperation({ summary: 'Add Role to User' })
+    @Post("/add-role/:userId/:roleId")
+    addRoleToUser(@Param('userId') userId: number, @Param('roleId') roleId: number) {
+        return this.usersService.addRoleToUser(userId, roleId);
+    }
 }
