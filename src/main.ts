@@ -11,23 +11,23 @@ async function bootstrap() {
 
   app.enableCors();
   const config = new DocumentBuilder()
-  .setTitle('Medicare API')
-  // .setDescription('The cats API description')
-  .setVersion('1.0')
-  // .addTag('cats')
-  .addBearerAuth()
-  .build();
-  
-const document = SwaggerModule.createDocument(app, config);
-const theme = new SwaggerTheme();
-const options: SwaggerCustomOptions = {
-  explorer: true,
-  customCss: theme.getBuffer(SwaggerThemeNameEnum.DARK),
-  swaggerOptions: {
-    persistAuthorization: true
-  }
-};
-SwaggerModule.setup('swagger', app, document, options);
+    .setTitle('Medicare API')
+    // .setDescription('The cats API description')
+    .setVersion('1.0')
+    // .addTag('cats')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  const theme = new SwaggerTheme();
+  const options: SwaggerCustomOptions = {
+    explorer: true,
+    customCss: theme.getBuffer(SwaggerThemeNameEnum.DARK),
+    swaggerOptions: {
+      persistAuthorization: true
+    }
+  };
+  SwaggerModule.setup('swagger', app, document, options);
   await app.listen(3000);
 }
 bootstrap();
