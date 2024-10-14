@@ -1,6 +1,7 @@
 import { CustomBaseEntity } from "src/common/entities/common-entitie";
 import { User } from "src/users/entity/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Wound } from "src/wound/entity/wound.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 
 @Entity()
 export class Perusal extends CustomBaseEntity {
@@ -11,6 +12,9 @@ export class Perusal extends CustomBaseEntity {
     @ManyToOne(() => User, (_) => _.perusal)
     @JoinColumn({ name: 'patient_id' })
     user: User;
+
+    @OneToMany(() => Wound, (_) => _.perusal)
+    wound: Array<Wound>;
 
     constructor(partial?: Partial<Perusal>) {
         super();

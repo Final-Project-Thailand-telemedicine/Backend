@@ -57,4 +57,12 @@ export class PerusalService {
 
         return await this.perusalRepository.save(perusal);
     }
+
+    async delete(id: number): Promise<Perusal> {
+        const perusal = await this.perusalRepository.findOne({ where: { id } });
+        if (!perusal) {
+            throw new NotFoundException('perusal not found');
+        }
+        return await this.perusalRepository.remove(perusal);
+    }
 }
