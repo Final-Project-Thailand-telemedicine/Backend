@@ -13,6 +13,8 @@ import { PerusalModule } from './perusal/perusal.module';
 import { DiagnosisModule } from './diagnosis/diagnosis.module';
 import { WoundModule } from './wound/wound.module';
 import { SeederModule } from './seeder/seeder.module';
+import { AppointmentModule } from './appointment/appointment.module';
+
 @Module({
   imports: [UsersModule,
     RolesModule,
@@ -29,7 +31,8 @@ import { SeederModule } from './seeder/seeder.module';
     PerusalModule,
     DiagnosisModule,
     WoundModule,
-    SeederModule
+    SeederModule,
+    AppointmentModule
   ],
   controllers: [AppController],
   providers: [AppService],
