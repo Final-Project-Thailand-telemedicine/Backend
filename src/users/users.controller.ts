@@ -6,7 +6,7 @@ import { ChangeFormatToJsonPipe } from 'src/pipes/change-format-to-json/change-f
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 
-@ApiTags('users')
+@ApiTags('users (ผู้ใช้)')
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}

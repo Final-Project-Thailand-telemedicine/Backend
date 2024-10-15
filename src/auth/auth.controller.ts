@@ -6,7 +6,7 @@ import { Auth } from './decorators/auth.decorator';
 import { Request } from 'express';
 import { RefreshTokenGuard } from 'src/common/guards/refresh-token.guard';
 
-@ApiTags('Auth')
+@ApiTags('Auth (การยืนยันตัวตน)')
 @Controller('auth')
 export class AuthController {
     constructor(
