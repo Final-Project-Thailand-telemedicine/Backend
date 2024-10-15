@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 import { CreatePerusal } from './dto/create-perusal.dto';
 import { PERUSAL_PAGINATION_CONFIG, PerusalService } from './perusal.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -26,7 +26,7 @@ export class PerusalController {
     }
 
     @ApiOperation({ summary: 'แก้ไข การตรวจ' })
-    @Post('/:id')
+    @Patch('/:id')
     async updatePerusal(@Body() updatePerusal: UpdatePerusal, @Param('id') id: number) {
         return this.perusalService.update(id, updatePerusal);
     }
