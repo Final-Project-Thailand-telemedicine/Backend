@@ -6,7 +6,7 @@ import { ChangeFormatToJsonPipe } from 'src/pipes/change-format-to-json/change-f
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 
-@ApiTags('users')
+@ApiTags('users (ผู้ใช้)')
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
@@ -48,5 +48,11 @@ export class UsersController {
     @Auth()
     getProfile(@Param('id') id: number) {
         return this.usersService.getProfile(id);
+    }
+
+    @ApiOperation({ summary: 'Add Role to User' })
+    @Post("/add-role/:userId/:roleId")
+    addRoleToUser(@Param('userId') userId: number, @Param('roleId') roleId: number) {
+        return this.usersService.addRoleToUser(userId, roleId);
     }
 }

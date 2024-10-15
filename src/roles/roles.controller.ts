@@ -4,7 +4,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UpdateRoleDto } from './dto/update-role.dto';
 
-@ApiTags('Roles')
+@ApiTags('Roles (ตำแหน่ง)')
 @Controller('roles')
 export class RolesController {
 
