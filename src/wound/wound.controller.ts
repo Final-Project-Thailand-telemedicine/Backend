@@ -4,6 +4,7 @@ import { ApiBody, ApiConsumes, ApiOperation, ApiProperty, ApiTags } from '@nestj
 import { CreateWound } from './dto/create-wound.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { readFileSync } from 'fs-extra';
+import { WoundGroupResult } from './wound.types';
 
 @ApiTags("Wound (แผล)")
 @Controller('wound')
@@ -11,7 +12,7 @@ export class WoundController {
 
     constructor(
         private readonly woundService: WoundService
-    ) {}
+    ) { }
 
     @ApiOperation({ summary: 'ดูข้อมูล แผลทั้งหมด' })
     @Get('')
@@ -35,16 +36,36 @@ export class WoundController {
 
     @ApiOperation({ summary: 'แก้ไขข้อมูล แผล' })
     @ApiProperty({ type: Number })
-    @Patch('update/:id')
+    @Patch('/:id')
     async updated(@Body() id: number, @Body() updateWound: CreateWound) {
         return await this.woundService.updated(id, updateWound);
     }
 
     @ApiOperation({ summary: 'ลบข้อมูล แผล' })
-    @ApiProperty({ type: Number })
-    @Delete('delete/:id')
-    async delete(@Param() id: number) {
+    @Delete('/:id')
+    async delete(@Param('id') id: number) {
         return await this.woundService.delete(id);
+    }
+
+    @ApiOperation({ summary: 'ดูแผลแยกตาม body area' })
+    @ApiProperty({ type: Number })
+    @Get('wounds/grouped')
+    async getGroupedWounds(): Promise<WoundGroupResult[]> {
+        return this.woundService.groupByWoundArea();
+    }
+
+    @ApiOperation({ summary: 'ดูแผลแยกตาม body area แยกตาม perusal' })
+    @ApiProperty({ type: Number })
+    @Get('wounds/grouped/:perusualId')
+    async getGroupedWoundsByPerusal(@Param('perusualId') perusualId: number) {
+        return this.woundService.groupByWoundArea(perusualId);
+    }
+
+    @ApiOperation({ summary: 'ดูแผลแยกตาม body area แยกตาม perusal แยกตาม main group' })
+    @ApiProperty({ type: Number })
+    @Get('wounds/main-groups/:perusualId')
+    async getWoundsByMainGroups(@Param('perusualId') perusualId: number) {
+        return this.woundService.getWoundsByMainGroups(perusualId);
     }
 
     @Post('file')
