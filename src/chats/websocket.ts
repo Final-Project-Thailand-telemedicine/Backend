@@ -3,10 +3,9 @@ import {
     SubscribeMessage,
     MessageBody,
     WebSocketServer,
+    ConnectedSocket,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
-import { ChatsService } from './chats.service';
-import { CreateChatDto } from './dto/create-chat.dto';
+import { Server, WebSocket } from 'ws';
 
 @WebSocketGateway({
     cors: {
@@ -17,18 +16,44 @@ export class ChatGateway {
     @WebSocketServer()
     server: Server;
 
-    constructor(private readonly chatService: ChatsService) { }
+    // Map to track clients and their rooms
+    private rooms = new Map<string, Set<WebSocket>>();
 
-    @SubscribeMessage('sendMessage')
-    async handleMessage(@MessageBody() data: CreateChatDto) {
-        const chat = await this.chatService.sendMessage(data);
-        this.server.to(`room_${data.roomId}`).emit('message', chat);
-        return chat;
+    handleConnection(client: WebSocket) {
+        console.log('Client connected: ', client);
+    }
+
+    handleDisconnect(client: WebSocket) {
+        console.log('Client disconnected:', client);
+        // Remove the client from any room it joined
+        this.rooms.forEach((clients, roomId) => {
+            clients.delete(client);
+            if (clients.size === 0) {
+                this.rooms.delete(roomId);
+            }
+        });
     }
 
     @SubscribeMessage('joinRoom')
-    handleJoinRoom(@MessageBody() roomId: number, client: any) {
-        client.join(`room_${roomId}`);
-        return { event: 'joinedRoom', roomId };
+    handleJoinRoom(@MessageBody() roomId: number, @ConnectedSocket() client: WebSocket) {
+        const roomKey = `room_${roomId}`;
+        if (!this.rooms.has(roomKey)) {
+            this.rooms.set(roomKey, new Set());
+        }
+        this.rooms.get(roomKey)?.add(client);
+
+        client.send(JSON.stringify({ event: 'joinedRoom', roomId }));
+    }
+
+    @SubscribeMessage('sendMessage')
+    handleMessage(@MessageBody() data: { roomId: number; content: string }, @ConnectedSocket() client: WebSocket) {
+        const roomKey = `room_${data.roomId}`;
+        const clients = this.rooms.get(roomKey);
+
+        if (clients) {
+            for (const roomClient of clients) {
+                roomClient.send(JSON.stringify({ event: 'message', content: data.content }));
+            }
+        }
     }
 }
