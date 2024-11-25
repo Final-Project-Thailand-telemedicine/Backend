@@ -14,6 +14,8 @@ import { DiagnosisModule } from './diagnosis/diagnosis.module';
 import { WoundModule } from './wound/wound.module';
 import { SeederModule } from './seeder/seeder.module';
 import { AppointmentModule } from './appointment/appointment.module';
+import { RoomsModule } from './rooms/rooms.module';
+import { ChatsModule } from './chats/chats.module';
 
 @Module({
   imports: [UsersModule,
@@ -32,7 +34,9 @@ import { AppointmentModule } from './appointment/appointment.module';
     DiagnosisModule,
     WoundModule,
     SeederModule,
-    AppointmentModule
+    AppointmentModule,
+    RoomsModule,
+    ChatsModule
   ],
   controllers: [AppController],
   providers: [AppService],
