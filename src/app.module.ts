@@ -16,6 +16,7 @@ import { SeederModule } from './seeder/seeder.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { ChatsModule } from './chats/chats.module';
+import { ChatGateway } from './chats/websocket';
 
 @Module({
   imports: [UsersModule,

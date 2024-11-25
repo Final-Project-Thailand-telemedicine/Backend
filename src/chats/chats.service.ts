@@ -5,7 +5,7 @@ import { Chat } from './entity/chat.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
 
 @Injectable()
-export class ChatService {
+export class ChatsService {
     constructor(
         @InjectRepository(Chat) private chatRepository: Repository<Chat>,
     ) { }
@@ -19,9 +19,9 @@ export class ChatService {
         return this.chatRepository.save(chat);
     }
 
-    async findMessagesByRoom(CreateChatDto: CreateChatDto): Promise<Chat[]> {
+    async findMessagesByRoom(roomId:number) {
         return this.chatRepository.find({
-            where: { room: { id: CreateChatDto.roomId } },
+            where: { room: { id: roomId } },
             relations: ['sender'],
             order: { createdAt: 'ASC' },
         });
