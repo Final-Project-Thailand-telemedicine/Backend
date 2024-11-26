@@ -2,6 +2,7 @@ import { Exclude } from "class-transformer";
 import { CustomBaseEntity } from "src/common/entities/common-entitie";
 import { Perusal } from "src/perusal/entity/perusal.entity";
 import { Role } from "src/roles/entity/role.entity";
+import { Room } from "src/rooms/entity/room.entity";
 import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -49,6 +50,23 @@ export class User extends CustomBaseEntity{
         }
     })
     role: Array<Role>;
+
+    @ManyToMany(() => Room, (_) => _.user)
+    @JoinTable({
+        name: "room_user",
+        joinColumn: {
+            name: "room_id",
+            referencedColumnName: "id"
+        },
+        inverseJoinColumn: {
+            name: "user_id",
+            referencedColumnName: "id"
+        }
+    })
+    room: Array<Room>;
+
+    @OneToMany(() => Room, (_) => _.user)
+    rooms: Array<Room>;
 
     @OneToMany(() => Perusal, (_) => _.user)
     perusal: Array<Perusal>;

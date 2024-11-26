@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerCustomOptions, SwaggerModule } from '@nestjs/swagger';
 import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
+import { WsAdapter } from '@nestjs/platform-ws';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -28,6 +29,7 @@ async function bootstrap() {
     }
   };
   SwaggerModule.setup('swagger', app, document, options);
+  app.useWebSocketAdapter(new WsAdapter(app));
   await app.listen(3000);
 }
 bootstrap();
