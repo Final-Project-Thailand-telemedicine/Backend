@@ -10,6 +10,11 @@ import { Room } from 'src/rooms/entity/room.entity';
 import { User } from 'src/users/entity/user.entity';
 import { CustomBaseEntity } from 'src/common/entities/common-entitie';
 
+
+export enum MessageType {
+    Text = "ข้อความ",
+    Image = "รูปภาพ",
+}
 @Entity('chat')
 export class Chat extends CustomBaseEntity {
 
@@ -21,6 +26,9 @@ export class Chat extends CustomBaseEntity {
 
     @Column('text')
     message: string;
+
+    @Column({type:"enum", enum: MessageType})
+    messageType: string;
 
     constructor(partial?: Partial<Chat>) {
         super();

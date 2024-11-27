@@ -3,18 +3,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Chat } from './entity/chat.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { RoomsService } from 'src/rooms/rooms.service';
 
 @Injectable()
 export class ChatsService {
     constructor(
         @InjectRepository(Chat) private chatRepository: Repository<Chat>,
+        private readonly roomService: RoomsService,
     ) { }
 
-    async sendMessage(CreateChatDto: CreateChatDto) {
+    async sendMessage(roomId:number,senderId:number,message:string) {
         const chat = this.chatRepository.create({
-            room: { id: CreateChatDto.roomId },
-            sender: { id: CreateChatDto.senderId },
-            message: CreateChatDto.message,
+            room: { id: roomId },
+            sender: { id: senderId },
+            message: message,
         });
         return this.chatRepository.save(chat);
     }
@@ -25,5 +27,9 @@ export class ChatsService {
             relations: ['sender'],
             order: { createdAt: 'ASC' },
         });
+    }
+
+    async joinRoom(roomId: number, userId: number) {
+        return this.roomService.joinRoom(roomId, userId);
     }
 }

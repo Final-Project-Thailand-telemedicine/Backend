@@ -30,6 +30,23 @@ export class RoomsService {
         return this.roomRepository.save(room);
     }
 
+    async joinRoom(roomId: number, userId: number) {
+        const room = await this.roomRepository.findOneBy({ id: roomId });
+        if (!room) throw new NotFoundException('Room not found');
+        const user = await this.userRepository.findOne({
+            where:{id: userId},
+            relations: ['room'],
+        });
+        if (!user) throw new NotFoundException('User not found');
+
+        if (user.room.some(existingRoom => existingRoom.id === room.id)) {
+            // Room already assigned to user
+            return user;
+        }
+        user.room.push(room);
+        return this.userRepository.save(user);
+    }
+
     async findAllRooms(): Promise<Room[]> {
         return this.roomRepository.find({ relations: ['owner'] });
     }

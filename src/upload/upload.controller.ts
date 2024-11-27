@@ -87,4 +87,25 @@ export class UploadController {
     remove(@Param('id') id: string) {
         return this.uploadService.remove(+id);
     }
+
+    @Post('file_new')
+    @ApiConsumes('multipart/form-data')
+    @ApiOperation({ summary: 'upload file new' })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary'
+                },
+            },
+        },
+    })
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadFile_new(@UploadedFile() file: Express.Multer.File) {
+        const uploadedFile = await this.uploadService.processAndSaveFile(file);
+        return uploadedFile;
+    }
+
 }

@@ -17,6 +17,8 @@ import { AppointmentModule } from './appointment/appointment.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { ChatsModule } from './chats/chats.module';
 import { ChatGateway } from './chats/websocket';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [UsersModule,
@@ -29,6 +31,10 @@ import { ChatGateway } from './chats/websocket';
     , TypeOrmModule.forRoot(
       typeOrmConfig
     ),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'), // Serve files from "uploads" directory
+      serveRoot: '/', // Accessible via /uploads path
+    }),
     AuthModule,
     UploadModule,
     PerusalModule,
