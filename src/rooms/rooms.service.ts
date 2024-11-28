@@ -50,4 +50,10 @@ export class RoomsService {
     async findAllRooms(): Promise<Room[]> {
         return this.roomRepository.find({ relations: ['owner'] });
     }
+
+    async findbyId(id: number): Promise<Room> {
+        const room = await this.roomRepository.findOneBy({ id });
+        if (!room) throw new NotFoundException('Room not found');
+        return room;
+    }
 }

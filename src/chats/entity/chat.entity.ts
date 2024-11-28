@@ -12,8 +12,8 @@ import { CustomBaseEntity } from 'src/common/entities/common-entitie';
 
 
 export enum MessageType {
-    Text = "ข้อความ",
-    Image = "รูปภาพ",
+    Text = "text",
+    Image = "image",
 }
 @Entity('chat')
 export class Chat extends CustomBaseEntity {
@@ -24,11 +24,14 @@ export class Chat extends CustomBaseEntity {
     @ManyToOne(() => User, { nullable: false })
     sender: User;
 
-    @Column('text')
+    @Column({ nullable: true })
     message: string;
 
     @Column({type:"enum", enum: MessageType})
     messageType: string;
+
+    @Column({ nullable: true })
+    imageUrl: string;
 
     constructor(partial?: Partial<Chat>) {
         super();
