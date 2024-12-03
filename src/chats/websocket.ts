@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import {
     WebSocketGateway,
     SubscribeMessage,
@@ -5,7 +6,11 @@ import {
     WebSocketServer,
     ConnectedSocket,
 } from '@nestjs/websockets';
+import { RoomsService } from 'src/rooms/rooms.service';
 import { Server, WebSocket } from 'ws';
+import { ChatsService } from './chats.service';
+import { MessageType } from './entity/chat.entity';
+import { send } from 'process';
 
 @WebSocketGateway({
     cors: {
@@ -13,6 +18,10 @@ import { Server, WebSocket } from 'ws';
     },
 })
 export class ChatGateway {
+    constructor(
+        private readonly roomService: RoomsService,
+        private readonly chatService: ChatsService
+    ) { }
     @WebSocketServer()
     server: Server;
 
@@ -20,7 +29,7 @@ export class ChatGateway {
     private rooms = new Map<string, Set<WebSocket>>();
 
     handleConnection(client: WebSocket) {
-        console.log('Client connected: ', client);
+        console.log('Client connected: ');
     }
 
     handleDisconnect(client: WebSocket) {
@@ -35,25 +44,40 @@ export class ChatGateway {
     }
 
     @SubscribeMessage('joinRoom')
-    handleJoinRoom(@MessageBody() roomId: number, @ConnectedSocket() client: WebSocket) {
-        const roomKey = `room_${roomId}`;
+    handleJoinRoom(@MessageBody() data: { roomId: number; userId: number }, @ConnectedSocket() client: WebSocket) {
+        const roomKey = `room_${data.roomId}`;
         if (!this.rooms.has(roomKey)) {
             this.rooms.set(roomKey, new Set());
         }
         this.rooms.get(roomKey)?.add(client);
 
-        client.send(JSON.stringify({ event: 'joinedRoom', roomId }));
+        if (this.roomService.joinRoom(data.roomId, data.userId)) {
+            client.send(JSON.stringify({ event: 'joinedRoom', roomId: data.roomId }));
+        }
+        else {
+            throw new NotFoundException('Room not found');
+        }
+
     }
 
     @SubscribeMessage('sendMessage')
-    handleMessage(@MessageBody() data: { roomId: number; content: string }, @ConnectedSocket() client: WebSocket) {
+    handleMessage(@MessageBody() data: { roomId: number; sendId: number; message: string; imageUrl: string; messageType: string }, @ConnectedSocket() client: WebSocket) {
+        
         const roomKey = `room_${data.roomId}`;
         const clients = this.rooms.get(roomKey);
-
+        
         if (clients) {
-            for (const roomClient of clients) {
-                roomClient.send(JSON.stringify({ event: 'message', content: data.content }));
+            if (data.messageType === MessageType.Image) {
+                for (const roomClient of clients) {
+                    roomClient.send(JSON.stringify({ event: 'image',sendId: data.sendId, image: data.imageUrl }));
+                }
+            }else if (data.messageType === MessageType.Text) {
+                for (const roomClient of clients) {
+                    roomClient.send(JSON.stringify({ event: 'text',sendId: data.sendId, message: data.message }));
+                }
             }
+
+            this.chatService.sendMessage(data.roomId, data.sendId, data.messageType, data.message, data.imageUrl);
         }
     }
 }
