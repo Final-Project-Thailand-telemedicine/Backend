@@ -55,11 +55,11 @@ export class User extends CustomBaseEntity{
     @JoinTable({
         name: "room_user",
         joinColumn: {
-            name: "room_id",
+            name: "user_id",
             referencedColumnName: "id"
         },
         inverseJoinColumn: {
-            name: "user_id",
+            name: "room_id",
             referencedColumnName: "id"
         }
     })

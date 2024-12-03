@@ -12,7 +12,13 @@ export class ChatsController {
     @ApiOperation({ summary: 'ส่งข้อความ' })
     @Post()
     sendMessage(@Body() body: CreateChatDto) {
-        return this.chatService.sendMessage(body.roomId,body.senderId,body.message);
+        return this.chatService.sendMessage(
+            body.roomId,
+            body.senderId,
+            body.messageType,
+            body.message,
+            body.imageUrl
+        );
     }
 
     @ApiOperation({ summary: 'ดึงข้อความทั้งหมดของห้อง' })

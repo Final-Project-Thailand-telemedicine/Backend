@@ -2,11 +2,17 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateChatDto {
     @ApiProperty()
-    readonly message: string;
+    roomId: number;
 
     @ApiProperty()
-    readonly senderId: number;
+    senderId: number;
 
     @ApiProperty()
-    readonly roomId: number;
+    messageType: string;
+
+    @ApiProperty()
+    message?: string;
+
+    @ApiProperty()
+    imageUrl?: string;
 }

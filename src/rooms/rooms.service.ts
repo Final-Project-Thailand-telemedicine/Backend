@@ -44,6 +44,8 @@ export class RoomsService {
             return user;
         }
         user.room.push(room);
+        console.log(user.room);
+        
         return this.userRepository.save(user);
     }
 
