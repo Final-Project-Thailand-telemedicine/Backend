@@ -58,4 +58,17 @@ export class RoomsService {
         if (!room) throw new NotFoundException('Room not found');
         return room;
     }
+
+    async findByUserId(userId: number): Promise<Room[]> {
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['room'], // Explicitly include relations
+        });
+    
+        if (!user) throw new NotFoundException('User not found');
+    
+        // Combine rooms from both relations and remove duplicates
+        const userRooms = new Set([...user.room]);
+        return Array.from(userRooms); // Return as an array
+    }
 }
