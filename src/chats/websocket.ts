@@ -29,11 +29,11 @@ export class ChatGateway {
     private rooms = new Map<string, Set<WebSocket>>();
 
     handleConnection(client: WebSocket) {
-        console.log('Client connected: ');
+        console.log('Client connected');
     }
 
     handleDisconnect(client: WebSocket) {
-        console.log('Client disconnected:', client);
+        console.log('Client disconnected');
         // Remove the client from any room it joined
         this.rooms.forEach((clients, roomId) => {
             clients.delete(client);
@@ -62,6 +62,7 @@ export class ChatGateway {
 
     @SubscribeMessage('sendMessage')
     handleMessage(@MessageBody() data: { roomId: number; sendId: number; message: string; imageUrl: string; messageType: string }, @ConnectedSocket() client: WebSocket) {
+        console.log(data);
         
         const roomKey = `room_${data.roomId}`;
         const clients = this.rooms.get(roomKey);

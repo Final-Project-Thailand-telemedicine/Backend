@@ -38,11 +38,12 @@ export class UploadController {
         await this.uploadService.createOne(file);
 
         const _file: any = file;
-        _file.pathUrl = _file.provider == 'local'
-            ? process.env.APP_URL + '/' + _file.filename
-            : _file.filename;
 
-        return _file;
+        console.log(_file);
+
+        return {
+            path: file.filename,
+        };
     }
 
 
