@@ -19,6 +19,7 @@ import { ChatsModule } from './chats/chats.module';
 import { ChatGateway } from './chats/websocket';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [UsersModule,
@@ -43,7 +44,8 @@ import { join } from 'path';
     SeederModule,
     AppointmentModule,
     RoomsModule,
-    ChatsModule
+    ChatsModule,
+    NotificationModule
   ],
   controllers: [AppController],
   providers: [AppService],

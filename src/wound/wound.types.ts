@@ -4,10 +4,10 @@ export interface WoundGroupResult {
     area: WoundArea;
     wounds: Wound[];
     count: number;
+    persual_id:number;
     statusBreakdown: {
         [key in WoundStatus]: number;
     };
-    mainGroup: number;
 }
 
 export interface WoundMainGroups {
