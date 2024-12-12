@@ -71,9 +71,9 @@ export class WoundController {
 
     @ApiOperation({ summary: 'ดูแผลแยกตาม body area แยกตาม perusal' })
     @ApiProperty({ type: Number })
-    @Get('wounds/:perusualId/:area')
-    async getWoundsByWoundarea_perusual(@Param('perusualId') perusualId: number, @Param('area') area: WoundArea) {
-        return this.woundService.getWoundsByWoundarea_perusual(perusualId, area);
+    @Get('wounds/:patientId/:area')
+    async getWoundsByWoundarea_perusual(@Param('patientId') patientId: number, @Param('area') area: WoundArea) {
+        return this.woundService.getWoundsByWoundareaPatient(patientId, area);
     }
 
     @Post('file')

@@ -8,6 +8,8 @@ import { UpdateWound } from './dto/update-wound.dto';
 import { HttpService } from '@nestjs/axios';
 import * as FormData from 'form-data';
 import { WoundGroupResult } from './wound.types';
+import { User } from 'src/users/entity/user.entity';
+import { log } from 'node:console';
 
 @Injectable()
 export class WoundService {
@@ -17,7 +19,9 @@ export class WoundService {
         @InjectRepository(Wound)
         private woundRepository: Repository<Wound>,
         @InjectRepository(Perusal)
-        private perusalRepository: Repository<Perusal>
+        private perusalRepository: Repository<Perusal>,
+        @InjectRepository(User)
+        private userRepository: Repository<User>,
     ) { }
     async findAll(): Promise<Wound[]> {
         return await this.woundRepository.find();
@@ -115,16 +119,48 @@ export class WoundService {
         return result;
     }
 
-    async getWoundsByWoundarea_perusual(perusualId: number, area?: WoundArea) {
-        const wounds = await this.woundRepository.find({
-            where: {
-                perusal: {id:perusualId},
-                area: area
+    async getWoundsByWoundareaPatient(patientId: number, area?: WoundArea) {
+        // Fetch perusals for the specified patientId (user ID) along with their related wounds
+        const user = await this.userRepository.findOne({
+            where: { id: patientId },
+            relations: ['perusal', 'perusal.wound'], // Load perusal and nested wound relations
+        });
+    
+        if (!user) {
+            throw new NotFoundException(`User with ID ${patientId} not found`);
+        }
+    
+        // Aggregate all wounds from the user's perusals
+        const allWounds = user.perusal.flatMap(perusal => perusal.wound);
+    
+        // Filter wounds by area if provided
+        const filteredWounds = allWounds.filter(wound => !area || wound.area === area);
+    
+        const woundMap = new Map<number, any>();
+    
+        // Process wounds to select the latest wound for each wound_ref
+        filteredWounds.forEach(wound => {
+            if (wound.wound_ref) {
+                // If there's a wound_ref, check if the map already contains a wound for this reference
+                const existing = woundMap.get(wound.wound_ref);
+                if (!existing || new Date(wound.updatedAt) > new Date(existing.updatedAt)) {
+                    woundMap.set(wound.wound_ref, wound);
+                }
+            } else {
+                // If no wound_ref, store the wound in the map using its own id
+                woundMap.set(wound.id, wound);
             }
-        })
-
-        return wounds
+        });
+    
+        // Prepare the result: include only the latest wounds for each wound_ref
+        const result = Array.from(woundMap.values()).filter(wound => {
+            // Include only the latest wound for each wound_ref or standalone wounds
+            return !wound.wound_ref || woundMap.get(wound.wound_ref).id === wound.id;
+        });
+    
+        return result;
     }
+    
 
     // async getWoundsByMainGroups(perusualId?: number) {
     //     const groupedWounds = await this.groupByWoundArea(perusualId);
