@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { WoundArea, WoundStatus } from "../entity/wound.entity";
+import { WoundArea, WoundStatus, WoundType } from "../entity/wound.entity";
 import { IsEnum } from "class-validator";
 
 export class CreateWound {
@@ -30,4 +30,18 @@ export class CreateWound {
 
     @IsEnum(WoundStatus)
     status: WoundStatus;
+
+    @ApiProperty(
+        {
+            enum:WoundType,
+            enumName: 'WoundType',
+            description: 'Type of the wound'
+        }
+    )
+
+    @IsEnum(WoundType)
+    wound_type: WoundType;
+
+    @ApiProperty()
+    wound_ref: number
 }

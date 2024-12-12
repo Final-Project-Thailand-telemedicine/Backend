@@ -5,6 +5,7 @@ import { CreateWound } from './dto/create-wound.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { readFileSync } from 'fs-extra';
 import { WoundGroupResult } from './wound.types';
+import { WoundArea } from './entity/wound.entity';
 
 @ApiTags("Wound (แผล)")
 @Controller('wound')
@@ -61,11 +62,18 @@ export class WoundController {
         return this.woundService.groupByWoundArea(perusualId);
     }
 
-    @ApiOperation({ summary: 'ดูแผลแยกตาม body area แยกตาม perusal แยกตาม main group' })
+    // @ApiOperation({ summary: 'ดูแผลแยกตาม body area แยกตาม perusal แยกตาม main group' })
+    // @ApiProperty({ type: Number })
+    // @Get('wounds/main-groups/:perusualId')
+    // async getWoundsByMainGroups(@Param('perusualId') perusualId: number) {
+    //     return this.woundService.getWoundsByMainGroups(perusualId);
+    // }
+
+    @ApiOperation({ summary: 'ดูแผลแยกตาม body area แยกตาม perusal' })
     @ApiProperty({ type: Number })
-    @Get('wounds/main-groups/:perusualId')
-    async getWoundsByMainGroups(@Param('perusualId') perusualId: number) {
-        return this.woundService.getWoundsByMainGroups(perusualId);
+    @Get('wounds/:perusualId/:area')
+    async getWoundsByWoundarea_perusual(@Param('perusualId') perusualId: number, @Param('area') area: WoundArea) {
+        return this.woundService.getWoundsByWoundarea_perusual(perusualId, area);
     }
 
     @Post('file')
