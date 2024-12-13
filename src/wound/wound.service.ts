@@ -120,20 +120,18 @@ export class WoundService {
     }
 
     async getWoundsByWoundareaPatient(patientId: number, area?: WoundArea) {
-        // Fetch perusals for the specified patientId (user ID) along with their related wounds
+
         const user = await this.userRepository.findOne({
             where: { id: patientId },
-            relations: ['perusal', 'perusal.wound'], // Load perusal and nested wound relations
+            relations: ['perusal', 'perusal.wound'],
         });
     
         if (!user) {
             throw new NotFoundException(`User with ID ${patientId} not found`);
         }
     
-        // Aggregate all wounds from the user's perusals
         const allWounds = user.perusal.flatMap(perusal => perusal.wound);
     
-        // Filter wounds by area if provided
         const filteredWounds = allWounds.filter(wound => !area || wound.area === area);
     
         const woundMap = new Map<number, any>();
