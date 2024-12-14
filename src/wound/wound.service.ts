@@ -130,10 +130,16 @@ export class WoundService {
             throw new NotFoundException(`User with ID ${patientId} not found`);
         }
     
-        const allWounds = user.perusal.flatMap(perusal => perusal.wound);
+        console.log(user);
+        
+        const allWounds = user.perusal.flatMap(perusal => 
+            perusal.wound.map(wound => ({ ...wound, perusal_id: perusal.id }))
+        );
     
+        
         const filteredWounds = allWounds.filter(wound => !area || wound.area === area);
     
+        
         const woundMap = new Map<number, any>();
     
         // Process wounds to select the latest wound for each wound_ref
