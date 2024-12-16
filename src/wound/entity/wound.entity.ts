@@ -45,6 +45,9 @@ export class Wound extends CustomBaseEntity{
     @Column({ nullable: true })
     wound_ref: number
 
+    @Column()
+    count: number
+
     constructor(partial?: Partial<Wound>) {
         super();
         if (partial) {

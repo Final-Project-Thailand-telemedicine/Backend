@@ -31,7 +31,7 @@ export class WoundController {
     @ApiOperation({ summary: 'ดูข้อมูล แผล ตาม id' })
     @ApiProperty({ type: Number })
     @Get(':id')
-    async findOne(@Body() id: number) {
+    async findOne(@Param("id") id: number) {
         return await this.woundService.findOne(id);
     }
 
@@ -75,6 +75,15 @@ export class WoundController {
     async getWoundsByWoundarea_perusual(@Param('patientId') patientId: number, @Param('area') area: WoundArea) {
         return this.woundService.getWoundsByWoundareaPatient(patientId, area);
     }
+
+    @ApiOperation({ summary: 'patientId by perusalId' })
+    @ApiProperty({ type: Number })
+    @Get('patient/:perusualId')
+    async getPatientIdByPerusalId(@Param('perusualId') perusualId: number) {
+        
+        return this.woundService.findPatientIdByPerusalId(perusualId);
+    }
+
 
     @Post('file')
     @ApiConsumes('multipart/form-data')
