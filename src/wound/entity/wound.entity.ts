@@ -1,4 +1,5 @@
 import { CustomBaseEntity } from "src/common/entities/common-entitie";
+import { Diagnosis } from "src/diagnosis/entity/diagnosis.entity";
 import { Perusal } from "src/perusal/entity/perusal.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 
@@ -29,6 +30,9 @@ export class Wound extends CustomBaseEntity{
     @ManyToOne(() => Perusal, (_) => _.wound)
     @JoinColumn({ name: 'perusal_id' })
     perusal: Perusal
+
+    @OneToMany(() => Diagnosis, (_) => _.wound)
+    diagnosis: Array<Wound>;
 
     @Column()
     wound_image: string

@@ -1,5 +1,6 @@
 import { Exclude } from "class-transformer";
 import { CustomBaseEntity } from "src/common/entities/common-entitie";
+import { Diagnosis } from "src/diagnosis/entity/diagnosis.entity";
 import { Perusal } from "src/perusal/entity/perusal.entity";
 import { Role } from "src/roles/entity/role.entity";
 import { Room } from "src/rooms/entity/room.entity";
@@ -70,6 +71,9 @@ export class User extends CustomBaseEntity{
 
     @OneToMany(() => Perusal, (_) => _.user)
     perusal: Array<Perusal>;
+
+    @OneToMany(() => Diagnosis, (_) => _.nurse)
+    diagnosis: Array<Diagnosis>;
     
     constructor(partial?: Partial<User>) {
         super();
