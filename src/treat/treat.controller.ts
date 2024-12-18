@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TreatService } from './treat.service';
-import { CreateTreat } from './dto/create-treat.dto';
-import { UpdateTreat } from './dto/update-treat.dto';
+import { CreateTreatDTO } from './dto/create-treat.dto';
+import { UpdateTreatDTO } from './dto/update-treat.dto';
 
 @ApiTags('treat (การดูแล)')
 @Controller('treat')
@@ -13,13 +13,13 @@ export class TreatController {
 
     @ApiOperation({ summary: 'สร้าง การดูแล' })
     @Post('')
-    async CreateTreat(@Body() createTreat: CreateTreat) {
+    async CreateTreat(@Body() createTreat: CreateTreatDTO) {
         return this.treatService.create(createTreat);
     }
 
     @ApiOperation({ summary: 'แก้ไข การดูแล' })
     @Patch('/:id')
-    async UpdateTreat(@Body() updateTreat: UpdateTreat, @Body('id') id: number) {
+    async UpdateTreat(@Body() updateTreat: UpdateTreatDTO, @Body('id') id: number) {
         return this.treatService.updated(id, updateTreat);
     }
 

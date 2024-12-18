@@ -1,6 +1,6 @@
 import { PartialType } from "@nestjs/swagger";
-import { CreateTreat } from "./create-treat.dto";
+import { CreateTreatDTO } from "./create-treat.dto";
 
-export class UpdateTreat extends PartialType(CreateTreat){
+export class UpdateTreatDTO extends PartialType(CreateTreatDTO){
 
 }

@@ -1,6 +1,8 @@
-import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { DiagnosisService } from './diagnosis.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CreateDiagnosisDTO } from './dto/create-diagnosis.dto';
+import { UpdateDiagnosisDto } from './dto/update-diagnosis.dto';
 
 @ApiTags('Diagnosis (การรักษา)')
 @Controller('diagnosis')
@@ -16,20 +18,20 @@ export class DiagnosisController {
     }
 
     @ApiOperation({ summary: 'สร้างข้อมูล การรักษา' })
-    @Post('created')
-    created() {
-        return this.diagnosisService.created();
+    @Post('')
+    created(@Body() createDiagnosis: CreateDiagnosisDTO) {
+        return this.diagnosisService.created(createDiagnosis);
     }
 
     @ApiOperation({ summary: 'แก้ไขข้อมูล การรักษา' })
-    @Patch('updated')
-    updated() {
-        return this.diagnosisService.updated();
+    @Patch('/:id')
+    updated(@Body() updateDiagnosis: UpdateDiagnosisDto ,@Param('id') id: number) {
+        return this.diagnosisService.updated(updateDiagnosis ,id);
     }
 
     @ApiOperation({ summary: 'ลบข้อมูล การรักษา' })
-    @Delete('delete')
-    delete() {
-        return this.diagnosisService.delete();
+    @Delete('/:id')
+    delete(@Param('id') id: number) {
+        return this.diagnosisService.delete(id);
     }
 }

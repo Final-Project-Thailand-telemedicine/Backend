@@ -21,6 +21,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { NotificationModule } from './notification/notification.module';
 import { TreatModule } from './treat/treat.module';
+import { WoundstateModule } from './woundstate/woundstate.module';
 
 @Module({
   imports: [UsersModule,
@@ -47,7 +48,8 @@ import { TreatModule } from './treat/treat.module';
     RoomsModule,
     ChatsModule,
     NotificationModule,
-    TreatModule
+    TreatModule,
+    WoundstateModule
   ],
   controllers: [AppController],
   providers: [AppService],
