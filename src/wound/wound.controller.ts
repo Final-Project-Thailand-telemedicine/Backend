@@ -6,13 +6,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { readFileSync } from 'fs-extra';
 import { WoundGroupResult } from './wound.types';
 import { WoundArea } from './entity/wound.entity';
+import { DiagnosisService } from 'src/diagnosis/diagnosis.service';
 
 @ApiTags("Wound (แผล)")
 @Controller('wound')
 export class WoundController {
 
     constructor(
-        private readonly woundService: WoundService
+        private readonly woundService: WoundService,
+        private readonly diagnosisService: DiagnosisService
     ) { }
 
     @ApiOperation({ summary: 'ดูข้อมูล แผลทั้งหมด' })
@@ -103,6 +105,12 @@ export class WoundController {
     async uploadFile(@UploadedFile() file: Express.Multer.File) {
         console.log(file);
 
-        return await this.woundService.Predict_Model(file);
+        return await this.woundService.Predict_Model_fromFile(file);
+    }
+
+    @ApiOperation({ summary: 'model predict from file path' })
+    @Get('predict-model/:path')
+    async predictModel(@Param('path') path: string) {
+        return await this.woundService.Predict_Model_fromFilePath(path);
     }
 }

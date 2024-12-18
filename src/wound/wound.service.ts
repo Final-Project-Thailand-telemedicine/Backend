@@ -9,7 +9,7 @@ import { HttpService } from '@nestjs/axios';
 import * as FormData from 'form-data';
 import { WoundGroupResult } from './wound.types';
 import { User } from 'src/users/entity/user.entity';
-import { log } from 'node:console';
+import axios from 'axios';
 
 @Injectable()
 export class WoundService {
@@ -89,6 +89,27 @@ export class WoundService {
             perusal: persual
         });
         return await this.woundRepository.save(wound);
+    }
+
+    async Predict_Model_fromFilePath(imageUrl: string) {
+        const formData = new FormData();
+
+        // Fetch the file from the URL
+        const response = await axios.get(process.env.BASE_URL+imageUrl, { responseType: 'stream' });
+        formData.append('file', response.data);
+
+        const headers = {
+            ...formData.getHeaders(),
+        };
+
+        // Send the form data to the prediction service
+        const predictionResponse = await this.httpService.axiosRef.post(
+            'http://127.0.0.1:8080/uploadfile/',
+            formData,
+            { headers }
+        );
+
+        return predictionResponse.data;
     }
 
     async findOne(id: number): Promise<Wound> {
@@ -222,7 +243,7 @@ export class WoundService {
     //     return mainGroups;
     // }
 
-    async Predict_Model(file: Express.Multer.File) {
+    async Predict_Model_fromFile(file: Express.Multer.File) {
         const formData = new FormData();
         formData.append('file', file.buffer, {
             filename: file.originalname,

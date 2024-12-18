@@ -11,6 +11,7 @@ import { Wound } from 'src/wound/entity/wound.entity';
     TypeOrmModule.forFeature([Diagnosis,User,Wound]),
   ],
   providers: [DiagnosisService],
-  controllers: [DiagnosisController]
+  controllers: [DiagnosisController],
+  exports: [DiagnosisService]
 })
 export class DiagnosisModule { }

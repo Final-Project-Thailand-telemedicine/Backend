@@ -6,11 +6,13 @@ import { Wound } from './entity/wound.entity';
 import { Perusal } from 'src/perusal/entity/perusal.entity';
 import { HttpModule } from '@nestjs/axios';
 import { User } from 'src/users/entity/user.entity';
+import { DiagnosisModule } from 'src/diagnosis/diagnosis.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Wound,Perusal,User]),
-    HttpModule
+    HttpModule,
+    DiagnosisModule
   ],
   providers: [WoundService],
   controllers: [WoundController]
