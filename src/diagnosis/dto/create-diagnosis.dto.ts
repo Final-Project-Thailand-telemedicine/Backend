@@ -6,7 +6,7 @@ export class CreateDiagnosisDTO {
     @ApiProperty()
     wound_id: number;
 
-    @ApiProperty()
+    @ApiProperty({nullable:true})
     nurse_id: number;
 
     @ApiProperty(
@@ -20,6 +20,6 @@ export class CreateDiagnosisDTO {
     @IsEnum(WoundStateEnum)
     wound_state: WoundStateEnum;
 
-    @ApiProperty()
+    @ApiProperty({nullable:true})
     remark: string;
 }

@@ -5,8 +5,9 @@ import { CreateWound } from './dto/create-wound.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { readFileSync } from 'fs-extra';
 import { WoundGroupResult } from './wound.types';
-import { WoundArea } from './entity/wound.entity';
+import { WoundArea, WoundStatus } from './entity/wound.entity';
 import { DiagnosisService } from 'src/diagnosis/diagnosis.service';
+import { WoundstateService } from 'src/woundstate/woundstate.service';
 
 @ApiTags("Wound (แผล)")
 @Controller('wound')
@@ -14,7 +15,8 @@ export class WoundController {
 
     constructor(
         private readonly woundService: WoundService,
-        private readonly diagnosisService: DiagnosisService
+        private readonly diagnosisService: DiagnosisService,
+        private readonly woundstateService: WoundstateService,
     ) { }
 
     @ApiOperation({ summary: 'ดูข้อมูล แผลทั้งหมด' })
@@ -27,7 +29,14 @@ export class WoundController {
     @ApiProperty({ type: CreateWound })
     @Post('create')
     async create(@Body() createWound: CreateWound) {
-        return await this.woundService.create(createWound);
+        const wound = await this.woundService.create(createWound);
+        console.log(wound);
+        const result = await this.woundService.Predict_Model_fromFilePath(wound.wound_image);
+        console.log(result);
+        const diagnosis = await this.diagnosisService.created({wound_id: wound.id ,nurse_id: null, wound_state: result.wound_state, remark: null});
+        console.log(diagnosis);
+        return await this.woundstateService.findbyId(result.wound_state);
+        
     }
 
     @ApiOperation({ summary: 'ดูข้อมูล แผล ตาม id' })

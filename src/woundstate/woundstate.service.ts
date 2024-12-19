@@ -13,7 +13,7 @@ export class WoundstateService {
         private woundstateRepository: Repository<WoundState>,
         @InjectRepository(Treat)
         private treatRepository: Repository<Treat>,
-    ) {}
+    ) { }
 
     async findAll(): Promise<WoundState[]> {
         return await this.woundstateRepository.find(
@@ -27,11 +27,20 @@ export class WoundstateService {
         return await this.woundstateRepository.findOneBy({ id });
     }
 
-    async create(CreateWoundStateDto:CreateWoundStateDto): Promise<WoundState> {
+    async findbyId(id: number): Promise<WoundState[]> {
+        const woundstate = await this.woundstateRepository.find({
+            where: { id: id },
+            relations: ['treat'],
+        });
+        return woundstate;
+
+    }
+
+    async create(CreateWoundStateDto: CreateWoundStateDto): Promise<WoundState> {
         return await this.woundstateRepository.save(CreateWoundStateDto);
     }
 
-    async update(woundstate: UpdateWoundStateDto,id: number): Promise<WoundState> {
+    async update(woundstate: UpdateWoundStateDto, id: number): Promise<WoundState> {
         await this.woundstateRepository.update(id, woundstate);
         return await this.woundstateRepository.findOneBy({ id });
     }

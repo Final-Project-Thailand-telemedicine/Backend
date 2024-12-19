@@ -10,6 +10,7 @@ import { Treat } from 'src/treat/entity/treat.entity';
       TypeOrmModule.forFeature([WoundState,Treat]),
     ],
   controllers: [WoundstateController],
-  providers: [WoundstateService]
+  providers: [WoundstateService],
+  exports: [WoundstateService],
 })
 export class WoundstateModule {}
