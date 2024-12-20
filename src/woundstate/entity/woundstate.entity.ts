@@ -1,7 +1,7 @@
 import { CustomBaseEntity } from "src/common/entities/common-entitie";
 import { Diagnosis } from "src/diagnosis/entity/diagnosis.entity";
 import { Treat } from "src/treat/entity/treat.entity";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 
 export enum WoundStateEnum{
     State_1 = 1,
@@ -18,8 +18,7 @@ export class WoundState extends CustomBaseEntity {
     @Column()
     description: string
 
-    @ManyToOne(() => Diagnosis, (_) => _.woundstate)
-    @JoinColumn({ name: 'diagnosis_id' })
+    @OneToMany(() => Diagnosis, (_) => _.woundstate)
     diagnosis: Diagnosis
 
     @ManyToMany(() => Treat, (_) => _.woundstate)

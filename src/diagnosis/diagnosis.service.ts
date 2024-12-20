@@ -6,6 +6,7 @@ import { CreateDiagnosisDTO } from './dto/create-diagnosis.dto';
 import { User } from 'src/users/entity/user.entity';
 import { Wound } from 'src/wound/entity/wound.entity';
 import { UpdateDiagnosisDto } from './dto/update-diagnosis.dto';
+import { WoundState } from 'src/woundstate/entity/woundstate.entity';
 
 @Injectable()
 export class DiagnosisService {
@@ -17,6 +18,8 @@ export class DiagnosisService {
         private userRepository: Repository<User>,
         @InjectRepository(Wound)
         private woundRepository: Repository<Wound>,
+        @InjectRepository(WoundState)
+        private woundstateRepository: Repository<WoundState>,
     ) { }
 
     async findAll(): Promise<Diagnosis[]> {
@@ -24,13 +27,37 @@ export class DiagnosisService {
     }
 
     async created(createDiagnosis: CreateDiagnosisDTO) {
-        const user = await this.userRepository.findOneBy({ id: createDiagnosis.nurse_id });
-        if (!user) throw new NotFoundException();
+        console.log('debug createDiagnosis:', createDiagnosis);
 
         const wound = await this.woundRepository.findOneBy({ id: createDiagnosis.wound_id });
-        if (!wound) throw new NotFoundException();
+        if (!wound) {
+            throw new NotFoundException(`Wound with ID ${createDiagnosis.wound_id} not found.`);
+        }
 
-        return await this.diagnosisRepository.save(createDiagnosis);
+        let nurse = null;
+        if (createDiagnosis.nurse_id) {
+            nurse = await this.userRepository.findOneBy({ id: createDiagnosis.nurse_id });
+            if (!nurse) {
+                throw new NotFoundException(`Nurse with ID ${createDiagnosis.nurse_id} not found.`);
+            }
+        }
+
+        const woundState = await this.woundstateRepository.findOneBy({ id: createDiagnosis.wound_state });
+        if (!woundState) {
+            throw new NotFoundException(`Wound state with ID ${createDiagnosis.wound_state} not found.`);
+        }
+
+        const diagnosis = this.diagnosisRepository.create({
+            wound,
+            nurse,
+            woundstate: woundState,
+            remark: createDiagnosis.remark,
+        });
+
+        console.log('debug diagnosis entity before save:', diagnosis);
+
+        // Save and return the entity
+        return await this.diagnosisRepository.save(diagnosis);
     }
 
     async updated(updateDiagnosis: UpdateDiagnosisDto, id: number) {
@@ -39,7 +66,22 @@ export class DiagnosisService {
         return await this.diagnosisRepository.save({ ...diagnosis, ...updateDiagnosis });
     }
 
-    async delete(id:number) {
-        return await this.diagnosisRepository.delete({id});
+    async delete(id: number) {
+        return await this.diagnosisRepository.delete({ id });
     }
+
+    async findByWoundId(woundId: number) {
+        const diagnosis = await this.diagnosisRepository.find({
+            where: { wound: { id: woundId } },
+            relations: ['wound', 'nurse', 'woundstate'],
+        });
+        console.log(diagnosis);
+        
+        const woundstate = await this.woundstateRepository.find({
+            where: { id: diagnosis[0].woundstate.id },
+            relations: ['treat'],
+        })
+        return woundstate;
+    }
+
 }

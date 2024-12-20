@@ -58,9 +58,6 @@ export class WoundService {
 
         const sortedWounds = allWounds.sort((a, b) => b.count - a.count);
 
-        console.log(sortedWounds);
-
-
         let count = 0;
 
         let woundRefValue: number | null = null;
@@ -88,7 +85,11 @@ export class WoundService {
             wound_ref: woundRefValue, // Override wound_ref value
             perusal: persual
         });
-        return await this.woundRepository.save(wound);
+
+        const result =await this.woundRepository.save(wound);
+        //return lastest woundId
+
+        return result;
     }
 
     async Predict_Model_fromFilePath(imageUrl: string) {

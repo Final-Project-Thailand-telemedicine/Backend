@@ -34,4 +34,10 @@ export class DiagnosisController {
     delete(@Param('id') id: number) {
         return this.diagnosisService.delete(id);
     }
+
+    @ApiOperation({ summary: 'ดูข้อมูล การรักษา' })
+    @Get('/wound/:id')
+    findByWoundId(@Param('id') woundId: number) {
+        return this.diagnosisService.findByWoundId(woundId);
+    }
 }

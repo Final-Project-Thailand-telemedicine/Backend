@@ -16,8 +16,9 @@ export class Diagnosis extends CustomBaseEntity {
     @JoinColumn({ name: 'nurse_id' })
     nurse: User
 
-    @OneToMany(() => WoundState, (_) => _.diagnosis)
-    woundstate: Array<WoundState>;
+    @ManyToOne(() => WoundState, (_) => _.diagnosis)
+    @JoinColumn({ name: 'woundstate_id' })
+    woundstate: WoundState;
 
     @Column({ nullable: true })
     remark: string
@@ -30,4 +31,3 @@ export class Diagnosis extends CustomBaseEntity {
     }
 }
 
-export { WoundState };

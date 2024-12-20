@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { WoundService } from './wound.service';
 import { ApiBody, ApiConsumes, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { CreateWound } from './dto/create-wound.dto';
@@ -29,14 +29,47 @@ export class WoundController {
     @ApiProperty({ type: CreateWound })
     @Post('create')
     async create(@Body() createWound: CreateWound) {
-        const wound = await this.woundService.create(createWound);
-        console.log(wound);
-        const result = await this.woundService.Predict_Model_fromFilePath(wound.wound_image);
-        console.log(result);
-        const diagnosis = await this.diagnosisService.created({wound_id: wound.id ,nurse_id: null, wound_state: result.wound_state, remark: null});
-        console.log(diagnosis);
-        return await this.woundstateService.findbyId(result.wound_state);
-        
+        try {
+            const wound = await this.woundService.create(createWound);
+    
+            if (!wound || !wound.wound_image) {
+                throw new BadRequestException('Wound image is required for prediction.');
+            }
+    
+            const result = await this.woundService.Predict_Model_fromFilePath(wound.wound_image);
+    
+            if (!result || !result.wound_state) {
+                throw new BadRequestException('Prediction failed or wound state not returned.');
+            }
+            
+            console.log("debug wound :");
+            console.log(wound);
+            console.log("debug result :"+ result);
+            console.log(result);
+            
+            
+            const diagnosis = await this.diagnosisService.created({
+                wound_id: wound.id,
+                nurse_id: null,
+                wound_state: result.wound_state,
+                remark: null,
+            });
+    
+            if (!diagnosis) {
+                throw new NotFoundException('Diagnosis not created.');
+            }
+            const woundStateDetails = await this.woundstateService.findbyId(result.wound_state);
+    
+            if (!woundStateDetails) {
+                throw new NotFoundException('Wound state details not found.');
+            }
+    
+            return woundStateDetails;
+        } catch (error) {
+            // Log the error (use a proper logger in production)
+            console.error('Error in create wound:', error.message);
+            throw error;
+        }
     }
 
     @ApiOperation({ summary: 'ดูข้อมูล แผล ตาม id' })
