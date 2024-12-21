@@ -36,8 +36,8 @@ export class DiagnosisController {
     }
 
     @ApiOperation({ summary: 'ดูข้อมูล การรักษา' })
-    @Get('/wound/:id')
-    findByWoundId(@Param('id') woundId: number) {
+    @Get('/wound/:woundId')
+    findByWoundId(@Param('woundId') woundId: number) {
         return this.diagnosisService.findByWoundId(woundId);
     }
 }

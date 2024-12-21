@@ -5,6 +5,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangeFormatToJsonPipe } from 'src/pipes/change-format-to-json/change-format-to-json.pipe';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/auth/decorators/auth.decorator';
+import { ApiPaginationQuery, Paginate, PaginateQuery } from 'nestjs-paginate';
+import { PERUSAL_PAGINATION_CONFIG } from 'src/perusal/perusal.service';
 
 @ApiTags('users (ผู้ใช้)')
 @Controller('users')
@@ -53,5 +55,12 @@ export class UsersController {
     @Post("/add-role/:userId/:roleId")
     addRoleToUser(@Param('userId') userId: number, @Param('roleId') roleId: number) {
         return this.usersService.addRoleToUser(userId, roleId);
+    }
+
+    @ApiOperation({ summary: 'Get User by Role' })
+    @Get("/role/:roleId")
+    @ApiPaginationQuery(PERUSAL_PAGINATION_CONFIG)
+    getUserByRole(@Paginate() query: PaginateQuery,@Param('roleId') roleId: number) {
+        return this.usersService.getPagebyRole(query, roleId);
     }
 }

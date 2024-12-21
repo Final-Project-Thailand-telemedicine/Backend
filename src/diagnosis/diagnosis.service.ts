@@ -75,13 +75,19 @@ export class DiagnosisService {
             where: { wound: { id: woundId } },
             relations: ['wound', 'nurse', 'woundstate'],
         });
-        console.log(diagnosis);
         
         const woundstate = await this.woundstateRepository.find({
             where: { id: diagnosis[0].woundstate.id },
             relations: ['treat'],
         })
-        return woundstate;
+
+        const result ={
+            wound_image: diagnosis[0].wound.wound_image,
+            ...woundstate[0],
+        }
+
+
+        return result;
     }
 
 }

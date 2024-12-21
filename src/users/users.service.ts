@@ -7,7 +7,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entity/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Helper } from "src/common/helper";
+import { paginate, PaginateConfig, Paginated, PaginateQuery } from 'nestjs-paginate';
 
+export const USER_PAGINATION_CONFIG: PaginateConfig<User> = {
+    sortableColumns: ['id', 'createdAt', 'updatedAt'],
+    select: ['id', 'first_name', 'last_name', 'ssid', 'sex', 'profile_image', 'createdAt', 'updatedAt'],
+};
 @Injectable()
 export class UsersService {
 
@@ -82,16 +87,16 @@ export class UsersService {
     async update(id: number, updateUserDto: UpdateUserDto) {
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new BadRequestException('User not found');
-        if(updateUserDto.password){
+        if (updateUserDto.password) {
             const hashedPassword = await argon2.hash(updateUserDto.password);
 
-            return this.userRepository.update(id,{
+            return this.userRepository.update(id, {
                 ...user,
-                password:hashedPassword
+                password: hashedPassword
             });
         }
         return this.userRepository.update(id, updateUserDto);
-        
+
     }
 
     // Method to delete a user (implementation needed)
@@ -131,6 +136,30 @@ export class UsersService {
         user.role.push(role);
         return this.userRepository.save(user);
     }
+
+    async getPagebyRole(query: PaginateQuery, roleId: number): Promise<Paginated<User>> {
+        try {
+            const queryBuilder = this.userRepository.createQueryBuilder('user')
+                .innerJoinAndSelect('user.role', 'role') 
+                .where('role.id = :id', { id: roleId });
+            
+            const paginatedResult = await paginate(query, queryBuilder, {
+                ...USER_PAGINATION_CONFIG,
+                relations: ['role'],
+            });
+
+
+            if (!paginatedResult.data.length) {
+                throw new Error(`No users found for role ID ${roleId}`);
+            }
+
+            return paginatedResult;
+        } catch (error) {
+            console.error(`Error fetching users for role ID ${roleId}:`, error);
+            throw new Error('Failed to fetch users for the specified role. Please try again later.');
+        }
+    }
+
     async checkssid(ssid: string) {
         const check = Helper.validateThaiSSID(ssid);
         return check;
