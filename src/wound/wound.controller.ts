@@ -42,11 +42,6 @@ export class WoundController {
                 throw new BadRequestException('Prediction failed or wound state not returned.');
             }
             
-            console.log("debug wound :");
-            console.log(wound);
-            console.log("debug result :"+ result);
-            console.log(result);
-            
             
             const diagnosis = await this.diagnosisService.created({
                 wound_id: wound.id,
