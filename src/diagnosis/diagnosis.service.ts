@@ -74,7 +74,7 @@ export class DiagnosisService {
     async findByWoundId(woundId: number) {
         const diagnosis = await this.diagnosisRepository.find({
             where: { wound: { id: woundId } },
-            relations: ['wound', 'nurse', 'woundstate'],
+            relations: ['wound.perusal', 'nurse', 'woundstate'],
         });
         
         const woundstate = await this.woundstateRepository.find({
@@ -83,6 +83,7 @@ export class DiagnosisService {
         })
 
         const result ={
+            persual_id: diagnosis[0].wound.perusal.id,
             wound_image: diagnosis[0].wound.wound_image,
             ...woundstate[0],
         }
