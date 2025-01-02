@@ -86,12 +86,19 @@ export class WoundController {
         return this.woundService.getWoundsByWoundareaPatient(patientId, area);
     }
 
-    @ApiOperation({ summary: 'patientId by perusalId' })
-    @ApiProperty({ type: Number })
-    @Get('patient/:perusualId')
-    async getPatientIdByPerusalId(@Param('perusualId') perusualId: number) {
+    // @ApiOperation({ summary: 'patientId by perusalId' })
+    // @ApiProperty({ type: Number })
+    // @Get('patient/:perusualId')
+    // async getPatientIdByPerusalId(@Param('perusualId') perusualId: number) {
         
-        return this.woundService.findPatientIdByPerusalId(perusualId);
+    //     return this.woundService.findPatientIdByPerusalId(perusualId);
+    // }
+
+    @ApiOperation({ summary: 'หน้าติดตามอาการแผล' })
+    @ApiProperty({ type: Number })
+    @Get('wounds/:patientId')
+    async getWoundsByWoundarea(@Param('patientId') patientId: number) {
+        return this.woundService.showLatestWounds(patientId);
     }
 
 

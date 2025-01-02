@@ -79,8 +79,12 @@ export class WoundService {
                     throw new BadRequestException('wound_ref is required for "แผลเก่า"');
                 }
                 woundRefValue = createWound.wound_ref;
-                if (sortedWounds.length > 0) {
-                    count = sortedWounds[0].count;
+                console.log(sortedWounds);
+                
+                const fillter_woundref = sortedWounds.filter(wound => wound.wound_ref === woundRefValue || wound.id === woundRefValue);
+                if (fillter_woundref.length > 0) {
+                    
+                    count = fillter_woundref[0].count;
                 } else {
                     throw new BadRequestException('count is wrong at "แผลเก่า"');
                 }
@@ -232,7 +236,13 @@ export class WoundService {
     async delete(id: number): Promise<Wound> {
         const wound = await this.woundRepository.findOneBy({ id });
         if (!wound) throw new NotFoundException();
-        return await this.woundRepository.remove(wound);
+    
+        const diagnosis = await this.diagnosisRepository.find({ where: { wound: { id: id } } });
+        if (diagnosis.length > 0) {
+            await this.diagnosisRepository.softRemove(diagnosis);
+        }
+    
+        return await this.woundRepository.softRemove(wound);
     }
 
     async groupByWoundArea(perusualId?: number): Promise<WoundGroupResult[]> {
@@ -328,21 +338,6 @@ export class WoundService {
         return result;
     }
 
-
-    // async getWoundsByMainGroups(perusualId?: number) {
-    //     const groupedWounds = await this.groupByWoundArea(perusualId);
-
-    //     const mainGroups = {
-    //         'Head and Neck': groupedWounds.filter(g => g.mainGroup === 0),
-    //         'Upper Extremity': groupedWounds.filter(g => g.mainGroup === 1),
-    //         'Thorax and Abdomen': groupedWounds.filter(g => g.mainGroup === 2),
-    //         'Lower Extremity': groupedWounds.filter(g => g.mainGroup === 3),
-    //         'Other': groupedWounds.filter(g => g.mainGroup === 4),
-    //     };
-
-    //     return mainGroups;
-    // }
-
     async Predict_Model_fromFile(file: Express.Multer.File) {
         const formData = new FormData();
         formData.append('file', file.buffer, {
@@ -357,5 +352,32 @@ export class WoundService {
         );
 
         return response.data;
+    }
+
+    async showLatestWounds(patientId: number) {
+        const user = await this.userRepository.findOne({
+            where: { id: patientId },
+            relations: ['perusal', 'perusal.wound'],
+        });
+
+        if (!user) {
+            throw new NotFoundException(`User with ID ${patientId} not found`);
+        }
+
+        const allWounds = user.perusal.flatMap(perusal =>
+            perusal.wound.map(wound => ({ ...wound, perusal_id: perusal.id }))
+        );
+
+        const latestUniqueWounds = Object.values(
+            allWounds.reduce((acc, wound) => {
+                const { count } = wound;
+                if (!acc[count] || new Date(wound.updatedAt) > new Date(acc[count].updatedAt)) {
+                    acc[count] = wound;
+                }
+                return acc;
+            }, {} as Record<number, typeof allWounds[0]>)
+        );
+    
+        return latestUniqueWounds;
     }
 }
