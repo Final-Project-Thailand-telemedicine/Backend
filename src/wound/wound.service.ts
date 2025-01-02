@@ -123,7 +123,7 @@ export class WoundService {
             // Commit the transaction
             await queryRunner.commitTransaction();
     
-            return woundStateDetails;
+            return diagnosis;
         } catch (error) {
             // Rollback transaction on error
             await queryRunner.rollbackTransaction();
