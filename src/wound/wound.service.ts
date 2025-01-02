@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Wound, WoundArea, WoundStatus } from './entity/wound.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { CreateWound } from './dto/create-wound.dto';
 import { Perusal } from 'src/perusal/entity/perusal.entity';
 import { UpdateWound } from './dto/update-wound.dto';
@@ -10,18 +10,30 @@ import * as FormData from 'form-data';
 import { WoundGroupResult } from './wound.types';
 import { User } from 'src/users/entity/user.entity';
 import axios from 'axios';
+import { DiagnosisService } from 'src/diagnosis/diagnosis.service';
+import { WoundstateService } from 'src/woundstate/woundstate.service';
+import { Diagnosis } from 'src/diagnosis/entity/diagnosis.entity';
+import { WoundState } from 'src/woundstate/entity/woundstate.entity';
+import { CreateDiagnosisDTO } from 'src/diagnosis/dto/create-diagnosis.dto';
 
 @Injectable()
 export class WoundService {
 
     constructor(
+        private readonly dataSource: DataSource,
         private readonly httpService: HttpService,
+        private readonly diagnosisService: DiagnosisService,
+        private readonly woundstateService: WoundstateService,
         @InjectRepository(Wound)
         private woundRepository: Repository<Wound>,
         @InjectRepository(Perusal)
         private perusalRepository: Repository<Perusal>,
         @InjectRepository(User)
         private userRepository: Repository<User>,
+        @InjectRepository(Diagnosis)
+        private diagnosisRepository: Repository<Diagnosis>,
+        @InjectRepository(WoundState)
+        private woundstateRepository: Repository<WoundState>,
     ) { }
     async findAll(): Promise<Wound[]> {
         return await this.woundRepository.find();
@@ -33,6 +45,93 @@ export class WoundService {
         return PatientId.id;
     }
 
+    async createWoundWithDiagnosis(createWound: CreateWound) {
+        const queryRunner = this.dataSource.createQueryRunner();
+    
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+    
+        try {
+            // Step 1: Wound creation using the existing service
+            const persual = await queryRunner.manager.findOne(Perusal, { where: { id: createWound.perusal_id } });
+            if (!persual) throw new NotFoundException();
+    
+            const patientId = await this.findPatientIdByPerusalId(createWound.perusal_id);
+    
+            const user = await queryRunner.manager.findOne(User, {
+                where: { id: patientId },
+                relations: ['perusal', 'perusal.wound'],
+            });
+    
+            if (!user) throw new NotFoundException(`User with ID ${patientId} not found`);
+    
+            const allWounds = user.perusal.flatMap(perusal =>
+                perusal.wound.map(wound => ({ ...wound, perusal_id: perusal.id }))
+            );
+    
+            const sortedWounds = allWounds.sort((a, b) => b.count - a.count);
+    
+            let count = 0;
+            let woundRefValue: number | null = null;
+    
+            if (createWound.wound_type === 'แผลเก่า') {
+                if (!createWound.wound_ref) {
+                    throw new BadRequestException('wound_ref is required for "แผลเก่า"');
+                }
+                woundRefValue = createWound.wound_ref;
+                if (sortedWounds.length > 0) {
+                    count = sortedWounds[0].count;
+                } else {
+                    throw new BadRequestException('count is wrong at "แผลเก่า"');
+                }
+            } else {
+                count = sortedWounds.length > 0 ? sortedWounds[0].count + 1 : 1;
+            }
+    
+            const wound = queryRunner.manager.create(Wound, {
+                ...createWound,
+                count: count,
+                wound_ref: woundRefValue,
+                perusal: persual,
+            });
+    
+            const savedWound = await queryRunner.manager.save(Wound, wound);
+    
+            // Step 2: Prediction logic
+            const result = await this.Predict_Model_fromFilePath(savedWound.wound_image);
+            if (!result || !result.wound_state) {
+                throw new BadRequestException('Prediction failed or wound state not returned.');
+            }
+    
+            // Step 3: Diagnosis creation using the existing service
+            const createDiagnosisDTO: CreateDiagnosisDTO = {
+                wound_id: savedWound.id,
+                nurse_id: null,
+                wound_state: result.wound_state,
+                remark: null,
+            };
+    
+            const diagnosis = await this.diagnosisService.created(createDiagnosisDTO, queryRunner);
+    
+            // Step 4: Fetch WoundState details using the existing service
+            const woundStateDetails = await this.woundstateService.findbyId(result.wound_state);
+    
+            // Commit the transaction
+            await queryRunner.commitTransaction();
+    
+            return woundStateDetails;
+        } catch (error) {
+            // Rollback transaction on error
+            await queryRunner.rollbackTransaction();
+            console.error('Transaction rolled back due to error:', error.message);
+            throw error;
+        } finally {
+            // Release queryRunner
+            await queryRunner.release();
+        }
+    }
+    
+    
     async create(createWound: CreateWound): Promise<Wound> {
         const persual = await this.perusalRepository.findOneBy({ id: createWound.perusal_id });
         if (!persual) throw new NotFoundException();
@@ -86,7 +185,7 @@ export class WoundService {
             perusal: persual
         });
 
-        const result =await this.woundRepository.save(wound);
+        const result = await this.woundRepository.save(wound);
         //return lastest woundId
 
         return result;
@@ -96,7 +195,7 @@ export class WoundService {
         const formData = new FormData();
 
         // Fetch the file from the URL
-        const response = await axios.get(process.env.BASE_URL+imageUrl, { responseType: 'stream' });
+        const response = await axios.get(process.env.BASE_URL + imageUrl, { responseType: 'stream' });
         formData.append('file', response.data);
 
         const headers = {

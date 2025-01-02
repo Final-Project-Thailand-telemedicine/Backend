@@ -30,38 +30,9 @@ export class WoundController {
     @Post('create')
     async create(@Body() createWound: CreateWound) {
         try {
-            const wound = await this.woundService.create(createWound);
-    
-            if (!wound || !wound.wound_image) {
-                throw new BadRequestException('Wound image is required for prediction.');
-            }
-    
-            const result = await this.woundService.Predict_Model_fromFilePath(wound.wound_image);
-    
-            if (!result || !result.wound_state) {
-                throw new BadRequestException('Prediction failed or wound state not returned.');
-            }
-            
-            
-            const diagnosis = await this.diagnosisService.created({
-                wound_id: wound.id,
-                nurse_id: null,
-                wound_state: result.wound_state,
-                remark: null,
-            });
-    
-            if (!diagnosis) {
-                throw new NotFoundException('Diagnosis not created.');
-            }
-            const woundStateDetails = await this.woundstateService.findbyId(result.wound_state);
-    
-            if (!woundStateDetails) {
-                throw new NotFoundException('Wound state details not found.');
-            }
-    
+            const woundStateDetails = await this.woundService.createWoundWithDiagnosis(createWound);
             return woundStateDetails;
         } catch (error) {
-            // Log the error (use a proper logger in production)
             console.error('Error in create wound:', error.message);
             throw error;
         }

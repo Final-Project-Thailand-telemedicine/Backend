@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Diagnosis } from './entity/diagnosis.entity';
-import { In, Repository } from 'typeorm';
+import { In, QueryRunner, Repository } from 'typeorm';
 import { CreateDiagnosisDTO } from './dto/create-diagnosis.dto';
 import { User } from 'src/users/entity/user.entity';
 import { Wound } from 'src/wound/entity/wound.entity';
@@ -26,38 +26,39 @@ export class DiagnosisService {
         return await this.diagnosisRepository.find()
     }
 
-    async created(createDiagnosis: CreateDiagnosisDTO) {
+    async created(createDiagnosis: CreateDiagnosisDTO, queryRunner: QueryRunner) {
         console.log('debug createDiagnosis:', createDiagnosis);
-
-        const wound = await this.woundRepository.findOneBy({ id: createDiagnosis.wound_id });
+    
+        // Use queryRunner.manager for transaction context
+        const wound = await queryRunner.manager.findOne(Wound, { where: { id: createDiagnosis.wound_id } });
         if (!wound) {
             throw new NotFoundException(`Wound with ID ${createDiagnosis.wound_id} not found.`);
         }
-
+    
         let nurse = null;
         if (createDiagnosis.nurse_id) {
-            nurse = await this.userRepository.findOneBy({ id: createDiagnosis.nurse_id });
+            nurse = await queryRunner.manager.findOne(User, { where: { id: createDiagnosis.nurse_id } });
             if (!nurse) {
                 throw new NotFoundException(`Nurse with ID ${createDiagnosis.nurse_id} not found.`);
             }
         }
-
-        const woundState = await this.woundstateRepository.findOneBy({ id: createDiagnosis.wound_state });
+    
+        const woundState = await queryRunner.manager.findOne(WoundState, { where: { id: createDiagnosis.wound_state } });
         if (!woundState) {
             throw new NotFoundException(`Wound state with ID ${createDiagnosis.wound_state} not found.`);
         }
-
-        const diagnosis = this.diagnosisRepository.create({
+    
+        const diagnosis = queryRunner.manager.create(Diagnosis, {
             wound,
             nurse,
             woundstate: woundState,
             remark: createDiagnosis.remark,
         });
-
+    
         console.log('debug diagnosis entity before save:', diagnosis);
-
-        // Save and return the entity
-        return await this.diagnosisRepository.save(diagnosis);
+    
+        // Save and return the entity using the transaction context
+        return await queryRunner.manager.save(Diagnosis, diagnosis);
     }
 
     async updated(updateDiagnosis: UpdateDiagnosisDto, id: number) {

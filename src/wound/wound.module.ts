@@ -8,10 +8,12 @@ import { HttpModule } from '@nestjs/axios';
 import { User } from 'src/users/entity/user.entity';
 import { DiagnosisModule } from 'src/diagnosis/diagnosis.module';
 import { WoundstateModule } from 'src/woundstate/woundstate.module';
+import { WoundState } from 'src/woundstate/entity/woundstate.entity';
+import { Diagnosis } from 'src/diagnosis/entity/diagnosis.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Wound,Perusal,User]),
+    TypeOrmModule.forFeature([Wound,Perusal,User,WoundState,Diagnosis]),
     HttpModule,
     DiagnosisModule,
     WoundstateModule

@@ -20,7 +20,7 @@ export class DiagnosisController {
     @ApiOperation({ summary: 'สร้างข้อมูล การรักษา' })
     @Post('')
     created(@Body() createDiagnosis: CreateDiagnosisDTO) {
-        return this.diagnosisService.created(createDiagnosis);
+        // return this.diagnosisService.created(createDiagnosis);
     }
 
     @ApiOperation({ summary: 'แก้ไขข้อมูล การรักษา' })
