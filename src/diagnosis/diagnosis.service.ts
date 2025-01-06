@@ -85,6 +85,7 @@ export class DiagnosisService {
         const result ={
             persual_id: diagnosis[0].wound.perusal.id,
             wound_image: diagnosis[0].wound.wound_image,
+            wound_status: diagnosis[0].wound.status,
             ...woundstate[0],
         }
 
