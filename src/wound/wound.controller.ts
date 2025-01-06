@@ -101,6 +101,13 @@ export class WoundController {
         return this.woundService.showLatestWounds(patientId);
     }
 
+    @ApiOperation({ summary: 'หน้าติดตามอาการแผล by woundId' })
+    @ApiProperty({ type: Number })
+    @Get('followup/:woundId')
+    async followupByWoundId(@Param('woundId') woundId: number) {
+        return this.woundService.followupByWoundId(woundId);
+    }
+
 
     @Post('file')
     @ApiConsumes('multipart/form-data')

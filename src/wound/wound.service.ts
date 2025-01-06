@@ -136,64 +136,64 @@ export class WoundService {
     }
     
     
-    async create(createWound: CreateWound): Promise<Wound> {
-        const persual = await this.perusalRepository.findOneBy({ id: createWound.perusal_id });
-        if (!persual) throw new NotFoundException();
+    // async create(createWound: CreateWound): Promise<Wound> {
+    //     const persual = await this.perusalRepository.findOneBy({ id: createWound.perusal_id });
+    //     if (!persual) throw new NotFoundException();
 
-        const patientId = await this.findPatientIdByPerusalId(createWound.perusal_id);
+    //     const patientId = await this.findPatientIdByPerusalId(createWound.perusal_id);
 
-        const user = await this.userRepository.findOne({
-            where: { id: patientId },
-            relations: ['perusal', 'perusal.wound'],
-        });
+    //     const user = await this.userRepository.findOne({
+    //         where: { id: patientId },
+    //         relations: ['perusal', 'perusal.wound'],
+    //     });
 
-        if (!user) {
-            throw new NotFoundException(`User with ID ${patientId} not found`);
-        }
+    //     if (!user) {
+    //         throw new NotFoundException(`User with ID ${patientId} not found`);
+    //     }
 
-        var allWounds = user.perusal.flatMap(perusal =>
-            perusal.wound.map(wound => ({ ...wound, perusal_id: perusal.id }))
-        );
+    //     var allWounds = user.perusal.flatMap(perusal =>
+    //         perusal.wound.map(wound => ({ ...wound, perusal_id: perusal.id }))
+    //     );
 
-        if (createWound.wound_type === 'แผลเก่า') {
-            allWounds = allWounds.filter(wound => !createWound.wound_ref || wound.wound_ref === createWound.wound_ref || wound.id === createWound.wound_ref);
-        }
+    //     if (createWound.wound_type === 'แผลเก่า') {
+    //         allWounds = allWounds.filter(wound => !createWound.wound_ref || wound.wound_ref === createWound.wound_ref || wound.id === createWound.wound_ref);
+    //     }
 
-        const sortedWounds = allWounds.sort((a, b) => b.count - a.count);
+    //     const sortedWounds = allWounds.sort((a, b) => b.count - a.count);
 
-        let count = 0;
+    //     let count = 0;
 
-        let woundRefValue: number | null = null;
-        if (createWound.wound_type === 'แผลเก่า') {
-            if (!createWound.wound_ref) {
-                throw new BadRequestException('wound_ref is required for "แผลเก่า"');
-            }
-            woundRefValue = createWound.wound_ref;
-            if (sortedWounds.length > 0) {
-                count = sortedWounds[0].count;
-            } else {
-                throw new BadRequestException('count is wrong at "แผลเก่า"');
-            }
-        } else {
-            if (sortedWounds.length > 0) {
-                count = sortedWounds[0].count + 1;
-            } else {
-                count = 1
-            }
-        }
+    //     let woundRefValue: number | null = null;
+    //     if (createWound.wound_type === 'แผลเก่า') {
+    //         if (!createWound.wound_ref) {
+    //             throw new BadRequestException('wound_ref is required for "แผลเก่า"');
+    //         }
+    //         woundRefValue = createWound.wound_ref;
+    //         if (sortedWounds.length > 0) {
+    //             count = sortedWounds[0].count;
+    //         } else {
+    //             throw new BadRequestException('count is wrong at "แผลเก่า"');
+    //         }
+    //     } else {
+    //         if (sortedWounds.length > 0) {
+    //             count = sortedWounds[0].count + 1;
+    //         } else {
+    //             count = 1
+    //         }
+    //     }
 
-        const wound = this.woundRepository.create({
-            ...createWound,
-            count: count,
-            wound_ref: woundRefValue, // Override wound_ref value
-            perusal: persual
-        });
+    //     const wound = this.woundRepository.create({
+    //         ...createWound,
+    //         count: count,
+    //         wound_ref: woundRefValue, // Override wound_ref value
+    //         perusal: persual
+    //     });
 
-        const result = await this.woundRepository.save(wound);
-        //return lastest woundId
+    //     const result = await this.woundRepository.save(wound);
+    //     //return lastest woundId
 
-        return result;
-    }
+    //     return result;
+    // }
 
     async Predict_Model_fromFilePath(imageUrl: string) {
         const formData = new FormData();
@@ -379,5 +379,12 @@ export class WoundService {
         );
     
         return latestUniqueWounds;
+    }
+
+    async followupByWoundId(woundId: number) {
+        const wound = await this.woundRepository.findOneBy({ id: woundId });
+        if (!wound) throw new NotFoundException();
+        const wounds = await this.woundRepository.find({ where: { count: wound.count } });
+        return wounds;
     }
 }
