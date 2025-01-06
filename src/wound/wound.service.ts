@@ -355,36 +355,74 @@ export class WoundService {
     }
 
     async showLatestWounds(patientId: number) {
+        // Fetch the user along with wounds and necessary relations
         const user = await this.userRepository.findOne({
             where: { id: patientId },
             relations: ['perusal', 'perusal.wound'],
         });
-
+    
         if (!user) {
             throw new NotFoundException(`User with ID ${patientId} not found`);
         }
-
+    
+        // Flatten all wounds and associate perusal IDs
         const allWounds = user.perusal.flatMap(perusal =>
             perusal.wound.map(wound => ({ ...wound, perusal_id: perusal.id }))
         );
-
+    
+        // Fetch diagnoses for all wound IDs
+        const woundIds = allWounds.map(wound => wound.id);
+        const diagnoses = await this.diagnosisRepository.find({
+            where: { wound: { id: In(woundIds) } },
+            relations: ['wound','woundstate'], // Include wound_state relation
+        });
+    
+        // Map diagnoses to wounds
+        const woundStateMap = diagnoses.reduce((acc, diagnosis) => {
+            acc[diagnosis.wound.id] = diagnosis.woundstate;
+            return acc;
+        }, {} as Record<number, WoundState>);
+    
+        const allWoundsWithState = allWounds.map(wound => ({
+            ...wound,
+            wound_state: woundStateMap[wound.id] || null,
+        }));
+    
+        // Find the latest unique wounds by count
         const latestUniqueWounds = Object.values(
-            allWounds.reduce((acc, wound) => {
+            allWoundsWithState.reduce((acc, wound) => {
                 const { count } = wound;
                 if (!acc[count] || new Date(wound.updatedAt) > new Date(acc[count].updatedAt)) {
                     acc[count] = wound;
                 }
                 return acc;
-            }, {} as Record<number, typeof allWounds[0]>)
+            }, {} as Record<number, typeof allWoundsWithState[0]>)
         );
     
         return latestUniqueWounds;
     }
+    
 
     async followupByWoundId(woundId: number) {
         const wound = await this.woundRepository.findOneBy({ id: woundId });
         if (!wound) throw new NotFoundException();
         const wounds = await this.woundRepository.find({ where: { count: wound.count } });
-        return wounds;
+
+        const woundIds = wounds.map(wound => wound.id);
+        const diagnoses = await this.diagnosisRepository.find({
+            where: { wound: { id: In(woundIds) } },
+            relations: ['wound','woundstate'], // Include wound_state relation
+        });
+
+        const woundStateMap = diagnoses.reduce((acc, diagnosis) => {
+            acc[diagnosis.wound.id] = diagnosis.woundstate;
+            return acc;
+        }, {} as Record<number, WoundState>);
+
+        const allWoundsWithState = wounds.map(wound => ({
+            ...wound,
+            wound_state: woundStateMap[wound.id] || null,
+        }));
+        return allWoundsWithState;
     }
 }
