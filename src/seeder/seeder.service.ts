@@ -78,7 +78,7 @@ export class SeederService {
                 , last_name: 'Admin'
                 , birthdate: new Date()
                 , password: passwrord
-                , profile_image: 'static/profile.png'
+                , profile_image: 'static/profile.jpg'
                 , role: [role[0]]
             }
 
