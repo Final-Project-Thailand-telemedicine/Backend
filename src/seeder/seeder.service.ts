@@ -65,7 +65,9 @@ export class SeederService {
 
     async seederUser() {
 
-        const role = this.roleRepository.find();
+        const role = await this.roleRepository.find();
+        console.log(role);
+        
 
         const passwrord = await argon2.hash(this.configService.get<string>('SUPER_ADMIN_PASS'));
         const users = this.userRepository.create([
@@ -74,12 +76,72 @@ export class SeederService {
                 , ssid: '1309903087352'
                 , sex: 'Male'
                 , phone: "1111111111"
-                , first_name: 'Super'
+                , first_name: 'Admin'
                 , last_name: 'Admin'
                 , birthdate: new Date()
                 , password: passwrord
                 , profile_image: 'static/profile.jpg'
                 , role: [role[0]]
+            },
+            {
+                id: 2
+                , ssid: '8391227711541'
+                , sex: 'Male'
+                , phone: "1111111111"
+                , first_name: 'patient'
+                , last_name: 'patient'
+                , birthdate: new Date()
+                , password: passwrord
+                , profile_image: 'static/profile.jpg'
+                , role: [role[1]]
+            },
+            {
+                id: 3
+                , ssid: '6141849336235'
+                , sex: 'Male'
+                , phone: "1111111111"
+                , first_name: 'patient'
+                , last_name: 'patient'
+                , birthdate: new Date()
+                , password: passwrord
+                , profile_image: 'static/profile.jpg'
+                , role: [role[1]]
+            },
+            {
+                id: 4
+                , ssid: '7061465229253'
+                , sex: 'Male'
+                , phone: "1111111111"
+                , first_name: 'patient'
+                , last_name: 'patient'
+                , birthdate: new Date()
+                , password: passwrord
+                , profile_image: 'static/profile.jpg'
+                , role: [role[1]]
+            },
+            {
+                id: 5
+                , ssid: '7102589824404'
+                , sex: 'Male'
+                , phone: "1111111111"
+                , first_name: 'nurse'
+                , last_name: 'nurse'
+                , birthdate: new Date()
+                , password: passwrord
+                , profile_image: 'static/profile.jpg'
+                , role: [role[2]]
+            },
+            {
+                id: 6
+                , ssid: '2387979313881'
+                , sex: 'Male'
+                , phone: "1111111111"
+                , first_name: 'doctor'
+                , last_name: 'doctor'
+                , birthdate: new Date()
+                , password: passwrord
+                , profile_image: 'static/profile.jpg'
+                , role: [role[3]]
             }
 
         ]);
