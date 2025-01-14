@@ -1,4 +1,4 @@
-import { BinaryToTextEncoding, createHash } from "crypto";
+import { BinaryToTextEncoding, createHash, privateDecrypt,constants } from "crypto";
 
 export class Helper {
     static isToday(date: Date): boolean {
@@ -52,22 +52,40 @@ export class Helper {
     }
 
     static validateThaiSSID(ssid: string) {
-    // Check if the input is exactly 13 digits long
-    if (!/^\d{13}$/.test(ssid)) {
-        return false;
+        // Check if the input is exactly 13 digits long
+        if (!/^\d{13}$/.test(ssid)) {
+            return false;
+        }
+
+        let sum = 0;
+        // Calculate the checksum using the first 12 digits
+        for (let i = 0; i < 12; i++) {
+            sum += parseInt(ssid.charAt(i)) * (13 - i);
+        }
+
+        // Modulo 11 and subtract from 11 to get the check digit
+        let checkDigit = (11 - (sum % 11)) % 10;
+
+        // Compare the calculated check digit with the 13th digit
+        return checkDigit === parseInt(ssid.charAt(12));
     }
 
-    let sum = 0;
-    // Calculate the checksum using the first 12 digits
-    for (let i = 0; i < 12; i++) {
-        sum += parseInt(ssid.charAt(i)) * (13 - i);
-    }
+    static decryptData(encryptedData: string): string {
+        // Convert the base64-encoded encrypted data to a Buffer
+        const encryptedBuffer = Buffer.from(encryptedData, 'base64');
 
-    // Modulo 11 and subtract from 11 to get the check digit
-    let checkDigit = (11 - (sum % 11)) % 10;
+        // Decrypt the data using the private key with RSA-OAEP padding
+        const decryptedBuffer = privateDecrypt(
+            {
+                key: process.env.PRIVATE_KEY,
+                padding: constants.RSA_PKCS1_OAEP_PADDING,
+                oaepHash: 'sha256',
+            },
+            encryptedBuffer
+        );
 
-    // Compare the calculated check digit with the 13th digit
-    return checkDigit === parseInt(ssid.charAt(12));
+        // Convert the decrypted buffer to a string and return it
+        return decryptedBuffer.toString('utf-8');
     }
 }
 

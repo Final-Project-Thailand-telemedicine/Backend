@@ -21,7 +21,6 @@ export class UsersController {
 
     @ApiOperation({ summary: 'สร้าง User' })
     @Post('register')
-    @UsePipes(new ValidationPipe())
     async register(@Body() createUserDto: CreateUserDto) {
         return this.usersService.create(createUserDto);
     }

@@ -55,7 +55,10 @@ export class UsersService {
 
     // Modified create method to handle user registration
     async create(createUserDto: CreateUserDto) {
-        // Check if username already exists
+        // debug this line
+
+        const decrypt_password = await Helper.decryptData(createUserDto.password);
+        
         const SSIDExists = await this.userRepository.findOne({ where: { ssid: createUserDto.ssid } });
         if (SSIDExists) throw new BadRequestException('SSID already exists');
 
@@ -64,7 +67,7 @@ export class UsersService {
         if (!check) throw new BadRequestException('Invalid SSID format');
 
         // Hash the password
-        const hashedPassword = await argon2.hash(createUserDto.password);
+        const hashedPassword = await argon2.hash(decrypt_password);
 
         // Create the new user instance
         const user = this.userRepository.create({

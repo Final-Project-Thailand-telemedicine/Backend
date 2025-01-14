@@ -66,9 +66,7 @@ export class SeederService {
     async seederUser() {
 
         const role = await this.roleRepository.find();
-        console.log(role);
         
-
         const passwrord = await argon2.hash(this.configService.get<string>('SUPER_ADMIN_PASS'));
         const users = this.userRepository.create([
             {
