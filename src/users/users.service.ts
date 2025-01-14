@@ -55,7 +55,6 @@ export class UsersService {
 
     // Modified create method to handle user registration
     async create(createUserDto: CreateUserDto) {
-        // debug this line
 
         const decrypt_password = await Helper.decryptData(createUserDto.password);
         

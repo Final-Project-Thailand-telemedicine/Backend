@@ -4,6 +4,7 @@ import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
+import { Helper } from 'src/common/helper';
 
 @Injectable()
 export class AuthService {
@@ -15,12 +16,14 @@ export class AuthService {
     ) { }
 
     async signIn(authDto: AuthDto) {
-        console.log(authDto);
-
+        
+        const decrypt_password = await Helper.decryptData(authDto.password);
+        console.log(decrypt_password);
+        
         const user = await this.usersService.findBySSID(authDto.ssid);
         if (!user) throw new UnauthorizedException('ssid or password is not correct');
 
-        const passwordMatches = await argon2.verify(user.password, authDto.password);
+        const passwordMatches = await argon2.verify(user.password, decrypt_password);
         if (!passwordMatches) throw new UnauthorizedException('ssid or password is not correct');
 
         const tokens = await this.getTokens(user.id, user.ssid);
