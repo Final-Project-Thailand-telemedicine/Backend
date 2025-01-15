@@ -1,17 +1,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nestjs-backend-ingress
+  name: backend-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - http:      # No host specified - will accept all traffic
+  - host: nestjs-backend.local
+    http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: nestjs-backend-service
+            name: nestjs-backend
             port:
-              number: 80
+              number: 3000

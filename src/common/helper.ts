@@ -1,4 +1,5 @@
 import { BinaryToTextEncoding, createHash, privateDecrypt,constants } from "crypto";
+import { readFileSync } from 'fs';
 
 export class Helper {
     static isToday(date: Date): boolean {
@@ -71,13 +72,14 @@ export class Helper {
     }
 
     static decryptData(encryptedData: string): string {
-        // Convert the base64-encoded encrypted data to a Buffer
+
+        const privateKey = readFileSync(process.env.PRIVATE_KEY_PATH, 'utf-8');
         const encryptedBuffer = Buffer.from(encryptedData, 'base64');
 
         // Decrypt the data using the private key with RSA-OAEP padding
         const decryptedBuffer = privateDecrypt(
             {
-                key: process.env.PRIVATE_KEY,
+                key: privateKey,
                 padding: constants.RSA_PKCS1_OAEP_PADDING,
                 oaepHash: 'sha256',
             },
