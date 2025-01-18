@@ -86,6 +86,7 @@ export class DiagnosisService {
             persual_id: diagnosis[0].wound.perusal.id,
             wound_image: diagnosis[0].wound.wound_image,
             wound_status: diagnosis[0].wound.status,
+            remark: diagnosis[0].remark,
             ...woundstate[0],
         }
 

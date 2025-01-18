@@ -2,12 +2,14 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import * as argon2 from 'argon2';
 import { Role } from 'src/roles/entity/role.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entity/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Helper } from "src/common/helper";
 import { paginate, PaginateConfig, Paginated, PaginateQuery } from 'nestjs-paginate';
+import { PatientNurse } from './entity/patientnurse.entity';
+import { Perusal } from 'src/perusal/entity/perusal.entity';
 
 export const USER_PAGINATION_CONFIG: PaginateConfig<User> = {
     sortableColumns: ['id', 'createdAt', 'updatedAt'],
@@ -20,7 +22,11 @@ export class UsersService {
         @InjectRepository(User)
         private userRepository: Repository<User>,
         @InjectRepository(Role)
-        private roleReopository: Repository<Role>
+        private roleReopository: Repository<Role>,
+        @InjectRepository(PatientNurse)
+        private patientNurseRepository: Repository<PatientNurse>,
+        @InjectRepository(Perusal)
+        private perusalRepository: Repository<Perusal>,
     ) { }
 
     // Method to find a user by username
@@ -161,6 +167,100 @@ export class UsersService {
             throw new Error('Failed to fetch users for the specified role. Please try again later.');
         }
     }
+
+    async allPatients() {
+        return this.userRepository.find({
+            where: { role: { id: 2 } },
+            relations: ["role"],
+        });
+    }
+
+    async allNurses() {
+        return this.userRepository.find({
+            where: { role: { id: 3 } },
+            relations: ["role"],
+        });
+    }
+
+    async allDoctors() {
+        return this.userRepository.find({
+            where: { role: { id: 4 } },
+            relations: ["role"],
+        });
+    }
+
+    async addPatientToNurse(patientId: number, nurseId: number) {
+        const patient = await this.userRepository.findOne({ where: { id: patientId } });
+        if (!patient) throw new NotFoundException('Patient not found');
+
+        const nurse = await this.userRepository.findOne({ where: { id: nurseId } });
+        if (!nurse) throw new NotFoundException('Nurse not found');
+
+        const patientNurse = this.patientNurseRepository.create({
+            patient_id: patientId,
+            nurse_id: nurseId,
+            patient,
+            nurse,
+        });
+
+        return this.patientNurseRepository.save(patientNurse);
+    }
+
+    async getPatientbyNurseID(nurseId: number) {
+        const patientsNurses = await this.patientNurseRepository.find({
+            where: { nurse_id: nurseId },
+            relations: ['patient'],
+        });
+    
+        const patientWoundStatus = await Promise.all(
+            patientsNurses.map(async (patient) => {
+                const perusals = await this.perusalRepository.find({
+                    where: { user: { id: patient.patient_id } },
+                    relations: ['wound'],
+                });
+    
+                // Determine patient_status
+                let patientStatus = 'เรียบร้อย'; // Default status
+                for (const perusal of perusals) {
+                    for (const wound of perusal.wound) {
+                        if (wound.status === 'รอตรวจ') {
+                            patientStatus = 'รอตรวจ';
+                            break;
+                        }
+                    }
+                    if (patientStatus === 'รอตรวจ') break;
+                }
+    
+                return {
+                    patient_id: patient.patient_id,
+                    nurse_id: patient.nurse_id,
+                    patient: patient.patient,
+                    patient_status: patientStatus,
+                };
+            })
+        );
+    
+        return patientWoundStatus;
+    }
+
+    async getNursebyPatientID(patientId: number) {
+        const patientsNurses = await this.patientNurseRepository.find({
+            where: { patient_id: patientId },
+            relations: ['nurse'],
+        });
+    
+        return patientsNurses;
+    }
+
+    async deletePatientNurse(patientId: number, nurseId: number) {
+        const patientNurse = await this.patientNurseRepository.findOne({
+            where: { patient_id: patientId, nurse_id: nurseId },
+        });
+        if (!patientNurse) throw new NotFoundException('Patient-Nurse relationship not found');
+    
+        return this.patientNurseRepository.delete(patientNurse);
+    }
+    
 
     async checkssid(ssid: string) {
         const check = Helper.validateThaiSSID(ssid);

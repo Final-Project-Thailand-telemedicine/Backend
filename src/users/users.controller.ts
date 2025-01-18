@@ -62,4 +62,28 @@ export class UsersController {
     getUserByRole(@Paginate() query: PaginateQuery,@Param('roleId') roleId: number) {
         return this.usersService.getPagebyRole(query, roleId);
     }
+
+    @ApiOperation({ summary: 'dropdown patient' })
+    @Get("/patient/all")
+    dropdownPatient() {
+        return this.usersService.allPatients();
+    }
+
+    @ApiOperation({ summary: 'add patient_nurse' })
+    @Post("/add-patient-nurse/:patientId/:nurseId")
+    addPatientNurse(@Param('patientId') patientId: number, @Param('nurseId') nurseId: number) {
+        return this.usersService.addPatientToNurse(patientId, nurseId);
+    }
+    
+    @ApiOperation({ summary: 'get patient by NurseID' })
+    @Get("/patient/:nurseId")
+    getPatientByNurseId(@Param('nurseId') nurseId: number) {
+        return this.usersService.getPatientbyNurseID(nurseId);
+    }
+
+    @ApiOperation({ summary: 'delete patient nurse' })
+    @Delete("/delete-patient-nurse/:patientId/:nurseId")
+    deletePatientNurse(@Param('patientId') patientId: number, @Param('nurseId') nurseId: number) {
+        return this.usersService.deletePatientNurse(patientId, nurseId);
+    }
 }

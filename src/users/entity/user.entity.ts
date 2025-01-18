@@ -5,9 +5,10 @@ import { Perusal } from "src/perusal/entity/perusal.entity";
 import { Role } from "src/roles/entity/role.entity";
 import { Room } from "src/rooms/entity/room.entity";
 import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { PatientNurse } from "./patientnurse.entity";
 
 @Entity()
-export class User extends CustomBaseEntity{
+export class User extends CustomBaseEntity {
 
     @Column()
     ssid: string;
@@ -32,7 +33,7 @@ export class User extends CustomBaseEntity{
     password: string;
 
     @Column()
-    profile_image:string;
+    profile_image: string;
 
     @Exclude()
     @Column({ name: 'refresh_token', nullable: true })
@@ -74,6 +75,12 @@ export class User extends CustomBaseEntity{
 
     @OneToMany(() => Diagnosis, (_) => _.nurse)
     diagnosis: Array<Diagnosis>;
+
+    @OneToMany(() => PatientNurse, (patientNurse) => patientNurse.patient)
+    asPatient: Array<PatientNurse>;
+
+    @OneToMany(() => PatientNurse, (patientNurse) => patientNurse.nurse)
+    asNurse: Array<PatientNurse>;
     
     constructor(partial?: Partial<User>) {
         super();
