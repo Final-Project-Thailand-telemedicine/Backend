@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import * as argon2 from 'argon2';
 import { Role } from 'src/roles/entity/role.entity';
-import { In, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entity/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -173,6 +173,23 @@ export class UsersService {
             where: { role: { id: 2 } },
             relations: ["role"],
         });
+    }
+
+    async allPatientsNotinNurse(nurseId: number) {
+    
+        const patientsNotInNurse = await this.patientNurseRepository.find({
+            where: { nurse_id: nurseId },
+        });
+
+        const patientIds = patientsNotInNurse.map((pn) => pn.patient_id);
+
+        const patientsNurses = await this.userRepository.find({
+            where: { role: { id: 2 }, id: Not(In(patientIds)) },
+            relations: ["role"],
+        });
+    
+        return patientsNurses;
+
     }
 
     async allNurses() {

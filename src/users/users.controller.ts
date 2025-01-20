@@ -63,12 +63,17 @@ export class UsersController {
         return this.usersService.getPagebyRole(query, roleId);
     }
 
-    @ApiOperation({ summary: 'dropdown patient' })
+    @ApiOperation({ summary: 'All patient' })
     @Get("/patient/all")
     dropdownPatient() {
         return this.usersService.allPatients();
     }
 
+    @ApiOperation({ summary: 'dropdown patien except in Nurse' })
+    @Get("/patient/dropdown/:nurseId")
+    dropdownPatientexceptNurse(@Param('nurseId') nurseId: number) {
+        return this.usersService.allPatientsNotinNurse(nurseId);
+    }
     @ApiOperation({ summary: 'add patient_nurse' })
     @Post("/add-patient-nurse/:patientId/:nurseId")
     addPatientNurse(@Param('patientId') patientId: number, @Param('nurseId') nurseId: number) {
