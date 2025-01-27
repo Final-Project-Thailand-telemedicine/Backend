@@ -67,20 +67,29 @@ export class DiagnosisService {
             where: { id },
             relations: ['wound'],
         });
-    
+        
         if (diagnosis) {
 
             const wound = await this.woundRepository.findOne({ where: { id: diagnosis.wound.id } });
+            
             if (wound) {
                 await this.woundRepository.update(wound.id, { status: WoundStatus.Done });
             }
 
-            await this.diagnosisRepository.update(id, updateDiagnosis);
+            if(updateDiagnosis.wound_state) {
+                const woundState = await this.woundstateRepository.findOne({ where: { id: updateDiagnosis.wound_state } });
+                if (!woundState) {
+                    throw new NotFoundException(`Wound state with ID ${updateDiagnosis.wound_state} not found.`);
+                }
+                await this.diagnosisRepository.update(id, { woundstate: woundState });
+            }
+
+            if(updateDiagnosis.remark) {
+                await this.diagnosisRepository.update(id, { remark: updateDiagnosis.remark });
+            }
             return { id, ...updateDiagnosis };
         } else {
-
-            const newDiagnosis = this.diagnosisRepository.create(updateDiagnosis);
-            return await this.diagnosisRepository.save(newDiagnosis);
+            throw new NotFoundException(`Diagnosis with ID ${id} not found.`);
         }
     }
     
