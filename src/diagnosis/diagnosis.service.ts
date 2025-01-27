@@ -62,21 +62,28 @@ export class DiagnosisService {
     }
 
     async updated(updateDiagnosis: UpdateDiagnosisDto, id: number) {
-        const diagnosis = await this.diagnosisRepository.find(
-            {
-                where: { id },
-                relations: ['wound']
+        // Check if the diagnosis exists
+        const diagnosis = await this.diagnosisRepository.findOne({
+            where: { id },
+            relations: ['wound'],
+        });
+    
+        if (diagnosis) {
+
+            const wound = await this.woundRepository.findOne({ where: { id: diagnosis.wound.id } });
+            if (wound) {
+                await this.woundRepository.update(wound.id, { status: WoundStatus.Done });
             }
 
-        );
+            await this.diagnosisRepository.update(id, updateDiagnosis);
+            return { id, ...updateDiagnosis };
+        } else {
 
-        const wound = await this.woundRepository.findOne({ where: { id: diagnosis[0].wound.id } });
-
-        await this.woundRepository.save({ ...wound, status: WoundStatus.Done});
-
-        if (!diagnosis) throw new NotFoundException();
-        return await this.diagnosisRepository.save({ ...diagnosis, ...updateDiagnosis });
+            const newDiagnosis = this.diagnosisRepository.create(updateDiagnosis);
+            return await this.diagnosisRepository.save(newDiagnosis);
+        }
     }
+    
 
     async delete(id: number) {
         return await this.diagnosisRepository.delete({ id });
