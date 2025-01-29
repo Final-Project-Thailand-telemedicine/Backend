@@ -1,56 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cloudflared
-  namespace: decubitus
+  name: cloudflare-tunnel
+  namespace: decubitus  # Replace with your namespace
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cloudflared
+      app: cloudflare-tunnel
   template:
     metadata:
       labels:
-        app: cloudflared
+        app: cloudflare-tunnel
     spec:
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
       containers:
-        - name: cloudflared
-          image: cloudflare/cloudflared:latest
-          args:
-            - tunnel
-            - --no-autoupdate
-            - run
-            - --token
-            - $(TUNNEL_TOKEN)
-          ports:
-            - containerPort: 2000
-              name: metrics
-          livenessProbe:
-            httpGet:
-              path: /ready
-              host: 64010646.systeme.io
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          env:
-            - name: TUNNEL_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: cloudflared-secrets
-                  key: TOKEN
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "200m"
-            limits:
-              memory: "512Mi"
-              cpu: "400m"
-          securityContext:
-            allowPrivilegeEscalation: false
-            runAsUser: 65532
-            runAsGroup: 65532
-            capabilities:
-              drop:
-                - ALL
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
+        args:
+        - tunnel
+        - --no-autoupdate
+        - run
+        - --token
+        - eyJhIjoiYmE3OTI0MmJmZWE0YmJmOGYyYmMxMzYzOGViNWQwMjQiLCJ0IjoiMTdjNGZjZDYtNzc4NS00Y2Y4LWI5ZDMtOTY1M2I2NTI3MWFhIiwicyI6Ik5qTTRZbUprWWprdE9XWTNNeTAwWVRReExUZzJNekF0TWpGaU1UUXpaRGs1TURJeSJ9
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudflare-tunnel-service
+  namespace: decubitus
+spec:
+  selector:
+    app: cloudflare-tunnel
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
