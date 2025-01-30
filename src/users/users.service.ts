@@ -93,13 +93,17 @@ export class UsersService {
 
 
     async update(id: number, updateUserDto: UpdateUserDto) {
+        console.log(updateUserDto);
+        
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new BadRequestException('User not found');
-        if (updateUserDto.password) {
-            const hashedPassword = await argon2.hash(updateUserDto.password);
+        const decrypt_password = await Helper.decryptData(updateUserDto.password);
+
+        if (decrypt_password && decrypt_password.trim() !== '') {
+            const hashedPassword = await argon2.hash(decrypt_password);
 
             return this.userRepository.update(id, {
-                ...user,
+                ...updateUserDto,
                 password: hashedPassword
             });
         }
