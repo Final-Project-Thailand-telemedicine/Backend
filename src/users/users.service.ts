@@ -10,6 +10,7 @@ import { Helper } from "src/common/helper";
 import { paginate, PaginateConfig, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { PatientNurse } from './entity/patientnurse.entity';
 import { Perusal } from 'src/perusal/entity/perusal.entity';
+import { JwtService } from '@nestjs/jwt';
 
 export const USER_PAGINATION_CONFIG: PaginateConfig<User> = {
     sortableColumns: ['id', 'createdAt', 'updatedAt'],
@@ -19,6 +20,7 @@ export const USER_PAGINATION_CONFIG: PaginateConfig<User> = {
 export class UsersService {
 
     constructor(
+        private jwtService: JwtService,
         @InjectRepository(User)
         private userRepository: Repository<User>,
         @InjectRepository(Role)
@@ -51,6 +53,19 @@ export class UsersService {
     async getProfile(id: number) {
         const user = await this.userRepository.findOne({
             where: { id },
+            relations: ["role"],
+            select: ["id", "first_name", "last_name", "ssid", "profile_image"],
+        });
+
+        if (!user) throw new BadRequestException('User not found');
+        return user;
+    }
+
+    async getProfilebytoken(accessToken: string) {
+        
+        const data = this.jwtService.decode(accessToken);
+        const user = await this.userRepository.findOne({
+            where: { id: data.Uid },
             relations: ["role"],
             select: ["id", "first_name", "last_name", "ssid", "profile_image"],
         });
@@ -107,7 +122,10 @@ export class UsersService {
                 password: hashedPassword
             });
         }
-        return this.userRepository.update(id, updateUserDto);
+        return this.userRepository.update(id, {
+            password: user.password,
+            ...updateUserDto
+        });
 
     }
 

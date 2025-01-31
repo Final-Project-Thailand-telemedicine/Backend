@@ -50,6 +50,13 @@ export class UsersController {
         return this.usersService.getProfile(id);
     }
 
+    @ApiOperation({ summary: 'Profile User' })
+    @Get("/profilebytoken/:accessToken")
+    @Auth()
+    getProfilebytoken(@Param('accessToken') accessToken: string) {
+        return this.usersService.getProfilebytoken(accessToken);
+    }
+
     @ApiOperation({ summary: 'Add Role to User' })
     @Post("/add-role/:userId/:roleId")
     addRoleToUser(@Param('userId') userId: number, @Param('roleId') roleId: number) {

@@ -18,8 +18,6 @@ export class AuthService {
     async signIn(authDto: AuthDto) {
         
         const decrypt_password = await Helper.decryptData(authDto.password);
-        console.log(decrypt_password);
-        
         const user = await this.usersService.findBySSID(authDto.ssid);
         if (!user) throw new UnauthorizedException('ssid or password is not correct');
 
