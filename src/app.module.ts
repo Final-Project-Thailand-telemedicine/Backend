@@ -22,6 +22,7 @@ import { join } from 'path';
 import { NotificationModule } from './notification/notification.module';
 import { TreatModule } from './treat/treat.module';
 import { WoundstateModule } from './woundstate/woundstate.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [UsersModule,
@@ -49,7 +50,8 @@ import { WoundstateModule } from './woundstate/woundstate.module';
     ChatsModule,
     NotificationModule,
     TreatModule,
-    WoundstateModule
+    WoundstateModule,
+    DashboardModule
   ],
   controllers: [AppController],
   providers: [AppService],
