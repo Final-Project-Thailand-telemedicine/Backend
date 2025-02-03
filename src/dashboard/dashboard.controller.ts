@@ -13,4 +13,10 @@ export class DashboardController {
         getUsers() {
             return this.dashboardService.dashboardTopWidget();
         }
+
+        @ApiOperation({ summary: 'Dashboard Middlewiget' })
+        @Get("/middlewiget")
+        getMiddleWidget() {
+            return this.dashboardService.dashboardMiddleWidget();
+        }
 }

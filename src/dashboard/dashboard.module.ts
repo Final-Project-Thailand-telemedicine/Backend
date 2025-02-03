@@ -7,11 +7,12 @@ import { User } from 'src/users/entity/user.entity';
 import { Role } from 'src/roles/entity/role.entity';
 import { PatientNurse } from 'src/users/entity/patientnurse.entity';
 import { Perusal } from 'src/perusal/entity/perusal.entity';
+import { Diagnosis } from 'src/diagnosis/entity/diagnosis.entity';
 
 @Module({
     imports: [
       JwtModule.register({}),
-      TypeOrmModule.forFeature([User, Role, PatientNurse, Perusal]),
+      TypeOrmModule.forFeature([User, Role, PatientNurse, Perusal,Diagnosis]),
     ],
   controllers: [DashboardController],
   providers: [DashboardService]
