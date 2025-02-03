@@ -80,6 +80,67 @@ export class DashboardService {
         return monthlyData;
     }
 
+    async dashboardMiddleWidget2() {
+        const diagnoses = await this.diagnosisRepository.find({ relations: ['woundstate', 'wound.perusal.user'] });
+
+        const mapdata = diagnoses.map(diagnosis => ({
+            userId: diagnosis.wound.perusal.user.id,
+            woundState: diagnosis.woundstate.state,
+            woundCount: diagnosis.wound.count,
+        }));
+
+        const groupedData = mapdata.reduce((acc, { userId, woundState, woundCount }) => {
+            if (!acc[userId]) {
+                acc[userId] = {};
+            }
+            if (!acc[userId][woundCount]) {
+                acc[userId][woundCount] = [];
+            }
+            acc[userId][woundCount].push(woundState);
+            return acc;
+        }, {});
+
+        const state = ["เท่าเดิม", "มากขึ้น", "ลดลง"];
+        const initData = state.map(state => ({
+            name: `ผู้ป่วยที่แผลมีความรุนแรง${state}`,
+            data: 0,
+            color: this.getColorbyState(state),
+        }));
+
+        Object.values(groupedData).forEach(userData => {
+            Object.values(userData).forEach((woundStates: number[]) => {
+                if (woundStates.length > 1) {
+                    const first = woundStates[0];
+                    const last = woundStates[woundStates.length - 1];
+
+                    if (first < last) {
+                        initData[1].data += 1; // "มากขึ้น"
+                    } else if (first > last) {
+                        initData[2].data += 1; // "ลดลง"
+                    } else {
+                        initData[0].data += 1; // "เท่าเดิม"
+                    }
+                } else {
+                    initData[0].data += 1; // "เท่าเดิม"
+                }
+            });
+        });
+
+        return initData;
+    }
+    async dashboardBottomWidget() {
+
+    }
+
+    private getColorbyState(state: string): string {
+        const colors = {
+            "เท่าเดิม": '#044342',
+            "มากขึ้น": '#7e0505',
+            "ลดลง": '#ed9e20',
+        };
+        return colors[state] || '#000000';
+    }
+
     private getColorByLevel(level: number): string {
         const colors = {
             1: '#FF0000',

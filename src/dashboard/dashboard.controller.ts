@@ -19,4 +19,16 @@ export class DashboardController {
         getMiddleWidget() {
             return this.dashboardService.dashboardMiddleWidget();
         }
+
+        @ApiOperation({ summary: 'Dashboard Middlewiget2' })
+        @Get("/middlewiget2")
+        getMiddleWidget2() {
+            return this.dashboardService.dashboardMiddleWidget2();
+        }
+
+        @ApiOperation({ summary: 'Dashboard Bottomwiget' })
+        @Get("/bottomwiget")
+        getBottomWidget() {
+            return this.dashboardService.dashboardBottomWidget();
+        }
 }
