@@ -102,7 +102,7 @@ export class DashboardService {
 
         const state = ["เท่าเดิม", "มากขึ้น", "ลดลง"];
         const initData = state.map(state => ({
-            name: `ผู้ป่วยที่แผลมีความรุนแรง${state}`,
+            name: `แผลมีความรุนแรง${state}`,
             data: 0,
             color: this.getColorbyState(state),
         }));
@@ -129,8 +129,35 @@ export class DashboardService {
         return initData;
     }
     async dashboardBottomWidget() {
+        const diagnoses = await this.diagnosisRepository.find({ relations: ['woundstate', 'wound.perusal.user'] });
 
+        const map = new Map<string, any>();
+
+        diagnoses.forEach(diagnosis => {
+            const key = `${diagnosis.wound.perusal.user.id}-${diagnosis.wound.count}`;
+            const statusMap: { [key: string]: string } = {
+                "รอตรวจ": "รอการตรวจจากผู้เชี่ยวชาญ",
+                "ตรวจแล้ว": "ผ่านการตรวจเรียบร้อย"
+            };
+            map.set(key, {
+                id: diagnosis.wound.perusal.user.id,
+                name: `${diagnosis.wound.perusal.user.first_name} ${diagnosis.wound.perusal.user.last_name}`,
+                position: diagnosis.wound.area,
+                wound: `แผลกดทับระดับที่ ${diagnosis.woundstate.state}`,
+                status: statusMap[diagnosis.wound.status] || diagnosis.wound.status,
+                woundCount: diagnosis.wound.count, // Always keeps the latest entry
+                createAt: diagnosis.createdAt,
+            });
+        });
+
+        const result = Array.from(map.values())
+            .sort((a, b) => b.createAt - a.createAt)
+            .slice(0, 5)
+            .map(({ woundCount, createAt, ...rest }) => rest); // Remove woundCount and createAt
+
+        return result;
     }
+
 
     private getColorbyState(state: string): string {
         const colors = {
