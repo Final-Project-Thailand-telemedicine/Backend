@@ -44,7 +44,24 @@ export class RoomsService {
             return user;
         }
         user.room.push(room);
-        console.log(user.room);
+        
+        return this.userRepository.save(user);
+    }
+
+    async joinRoomfromPerusal(perusalId: number, userId: number) {
+        const room = await this.roomRepository.findOneBy({ perusal: {id:perusalId} });
+        if (!room) throw new NotFoundException('Room not found');
+        const user = await this.userRepository.findOne({
+            where:{id: userId},
+            relations: ['room'],
+        });
+        if (!user) throw new NotFoundException('User not found');
+
+        if (user.room.some(existingRoom => existingRoom.id === room.id)) {
+            // Room already assigned to user
+            return user;
+        }
+        user.room.push(room);
         
         return this.userRepository.save(user);
     }
@@ -60,11 +77,15 @@ export class RoomsService {
     }
 
     async findByUserId(userId: number): Promise<Room[]> {
-        const room = await this.roomRepository.find({
-            where: { owner: { id: userId } },
-            relations: ['owner'],
-        })
-        if (!room) throw new NotFoundException('Room not found');
-        return room;
+        const rooms = await this.roomRepository.find({
+            where: { user: { id: userId } }, // Corrected condition
+            relations: ['owner', 'user'], // Ensure 'users' is included
+        });
+    
+        if (!rooms || rooms.length === 0) {
+            throw new NotFoundException('Rooms not found');
+        }
+    
+        return rooms;
     }
 }

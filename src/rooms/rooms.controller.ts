@@ -26,6 +26,12 @@ export class RoomsController {
         return this.roomService.joinRoom(roomId, userId);
     }
 
+    @ApiOperation({ summary: 'เข้าห้องโดยการตรวจ' })
+    @Get('perusal/:perusalId/:userId')
+    joinRoomfromPerusal(@Param('perusalId') perusalId: number, @Param('userId') userId: number) {
+        return this.roomService.joinRoomfromPerusal(perusalId, userId);
+    }
+
     @ApiOperation({ summary: 'ดูห้องของผู้ใช้' })
     @Get(':userId')
     findbyUserId(@Param('userId') userId: number) {
