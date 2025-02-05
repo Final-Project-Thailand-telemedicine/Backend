@@ -82,10 +82,6 @@ export class RoomsService {
             relations: ['owner', 'user'], // Ensure 'users' is included
         });
     
-        if (!rooms || rooms.length === 0) {
-            throw new NotFoundException('Rooms not found');
-        }
-    
         return rooms;
     }
 }
