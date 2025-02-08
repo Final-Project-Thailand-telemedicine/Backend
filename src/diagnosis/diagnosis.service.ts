@@ -110,6 +110,7 @@ export class DiagnosisService {
         })
 
         const result = {
+            diagnosis_id: diagnosis[0].id,
             patient_id: diagnosis[0].wound.perusal.user.id,
             persual_id: diagnosis[0].wound.perusal.id,
             wound_image: diagnosis[0].wound.wound_image,
