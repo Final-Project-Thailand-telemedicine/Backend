@@ -208,7 +208,7 @@ export class WoundService {
 
         // Send the form data to the prediction service
         const predictionResponse = await this.httpService.axiosRef.post(
-            'http://127.0.0.1:8080/uploadfile/',
+            'https://model.tanpy.xyz/uploadfile/',
             formData,
             { headers }
         );
@@ -346,7 +346,7 @@ export class WoundService {
         });
 
         const response = await this.httpService.axiosRef.post(
-            'http://127.0.0.1:8080/uploadfile/',
+            'https://model.tanpy.xyz/uploadfile/',
             formData,
             { headers: formData.getHeaders() }
         );
