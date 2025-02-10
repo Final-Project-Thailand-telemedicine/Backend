@@ -27,7 +27,10 @@ export class RoomsService {
         if (!user) throw new NotFoundException();
 
         const room = this.roomRepository.create({ ...CreateRoomDto, owner: { id: CreateRoomDto.ownerId } ,perusal: { id: CreateRoomDto.perusalId } });
-        return this.roomRepository.save(room);
+        await this.roomRepository.save(room);
+
+        return await this.joinRoom(room.id, CreateRoomDto.ownerId);
+
     }
 
     async joinRoom(roomId: number, userId: number) {
