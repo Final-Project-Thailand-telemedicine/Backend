@@ -103,7 +103,7 @@ export class WoundService {
     
             // Step 2: Prediction logic
             const result = await this.Predict_Model_fromFilePath(savedWound.wound_image);
-            if (!result || !result.wound_state) {
+            if (!result || !result.wound_class) {
                 throw new BadRequestException('Prediction failed or wound state not returned.');
             }
     
@@ -111,14 +111,14 @@ export class WoundService {
             const createDiagnosisDTO: CreateDiagnosisDTO = {
                 wound_id: savedWound.id,
                 nurse_id: null,
-                wound_state: result.wound_state,
+                wound_state: result.wound_class,
                 remark: null,
             };
     
             const diagnosis = await this.diagnosisService.created(createDiagnosisDTO, queryRunner);
     
             // Step 4: Fetch WoundState details using the existing service
-            const woundStateDetails = await this.woundstateService.findbyId(result.wound_state);
+            const woundStateDetails = await this.woundstateService.findbyId(result.wound_class);
     
             // Commit the transaction
             await queryRunner.commitTransaction();
@@ -135,65 +135,6 @@ export class WoundService {
         }
     }
     
-    
-    // async create(createWound: CreateWound): Promise<Wound> {
-    //     const persual = await this.perusalRepository.findOneBy({ id: createWound.perusal_id });
-    //     if (!persual) throw new NotFoundException();
-
-    //     const patientId = await this.findPatientIdByPerusalId(createWound.perusal_id);
-
-    //     const user = await this.userRepository.findOne({
-    //         where: { id: patientId },
-    //         relations: ['perusal', 'perusal.wound'],
-    //     });
-
-    //     if (!user) {
-    //         throw new NotFoundException(`User with ID ${patientId} not found`);
-    //     }
-
-    //     var allWounds = user.perusal.flatMap(perusal =>
-    //         perusal.wound.map(wound => ({ ...wound, perusal_id: perusal.id }))
-    //     );
-
-    //     if (createWound.wound_type === 'แผลเก่า') {
-    //         allWounds = allWounds.filter(wound => !createWound.wound_ref || wound.wound_ref === createWound.wound_ref || wound.id === createWound.wound_ref);
-    //     }
-
-    //     const sortedWounds = allWounds.sort((a, b) => b.count - a.count);
-
-    //     let count = 0;
-
-    //     let woundRefValue: number | null = null;
-    //     if (createWound.wound_type === 'แผลเก่า') {
-    //         if (!createWound.wound_ref) {
-    //             throw new BadRequestException('wound_ref is required for "แผลเก่า"');
-    //         }
-    //         woundRefValue = createWound.wound_ref;
-    //         if (sortedWounds.length > 0) {
-    //             count = sortedWounds[0].count;
-    //         } else {
-    //             throw new BadRequestException('count is wrong at "แผลเก่า"');
-    //         }
-    //     } else {
-    //         if (sortedWounds.length > 0) {
-    //             count = sortedWounds[0].count + 1;
-    //         } else {
-    //             count = 1
-    //         }
-    //     }
-
-    //     const wound = this.woundRepository.create({
-    //         ...createWound,
-    //         count: count,
-    //         wound_ref: woundRefValue, // Override wound_ref value
-    //         perusal: persual
-    //     });
-
-    //     const result = await this.woundRepository.save(wound);
-    //     //return lastest woundId
-
-    //     return result;
-    // }
 
     async Predict_Model_fromFilePath(imageUrl: string) {
         const formData = new FormData();

@@ -108,7 +108,6 @@ export class UsersService {
 
 
     async update(id: number, updateUserDto: UpdateUserDto) {
-        console.log(updateUserDto);
         
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new BadRequestException('User not found');
@@ -122,6 +121,18 @@ export class UsersService {
                 password: hashedPassword
             });
         }
+        return this.userRepository.update(id, {
+            password: user.password,
+            ...updateUserDto
+        });
+
+    }
+
+    async updateprofile(id: number, updateUserDto: UpdateUserDto) {
+        
+        const user = await this.userRepository.findOne({ where: { id } });
+        if (!user) throw new BadRequestException('User not found');
+
         return this.userRepository.update(id, {
             password: user.password,
             ...updateUserDto

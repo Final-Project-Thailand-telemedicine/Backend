@@ -25,10 +25,16 @@ export class UsersController {
         return this.usersService.create(createUserDto);
     }
 
-    @ApiOperation({ summary: 'แก้ไขข้อมูล User' }) // "Update User Information"
+    @ApiOperation({ summary: 'แก้ไขข้อมูล User' })
     @Patch("/:id")
     async updateUser(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
         return this.usersService.update(id, updateUserDto);
+    }
+
+    @ApiOperation({ summary: 'แก้ไขข้อมูล profild' })
+    @Patch("/profile/:id")
+    async updateUserProfile(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+        return this.usersService.updateprofile(id, updateUserDto);
     }
 
     @ApiOperation({ summary: 'ลบ User' })
