@@ -11,6 +11,7 @@ import { paginate, PaginateConfig, Paginated, PaginateQuery } from 'nestjs-pagin
 import { PatientNurse } from './entity/patientnurse.entity';
 import { Perusal } from 'src/perusal/entity/perusal.entity';
 import { JwtService } from '@nestjs/jwt';
+import { ProfileUserDto } from './dto/profile-user.dto';
 
 export const USER_PAGINATION_CONFIG: PaginateConfig<User> = {
     sortableColumns: ['id', 'createdAt', 'updatedAt'],
@@ -128,14 +129,14 @@ export class UsersService {
 
     }
 
-    async updateprofile(id: number, updateUserDto: UpdateUserDto) {
+    async updateprofile(id: number, profileUserDto: ProfileUserDto) {
         
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new BadRequestException('User not found');
 
         return this.userRepository.update(id, {
             password: user.password,
-            ...updateUserDto
+            ...profileUserDto
         });
 
     }

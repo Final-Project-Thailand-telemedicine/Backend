@@ -7,6 +7,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ApiPaginationQuery, Paginate, PaginateQuery } from 'nestjs-paginate';
 import { PERUSAL_PAGINATION_CONFIG } from 'src/perusal/perusal.service';
+import { ProfileUserDto } from './dto/profile-user.dto';
 
 @ApiTags('users (ผู้ใช้)')
 @Controller('users')
@@ -33,8 +34,8 @@ export class UsersController {
 
     @ApiOperation({ summary: 'แก้ไขข้อมูล profild' })
     @Patch("/profile/:id")
-    async updateUserProfile(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-        return this.usersService.updateprofile(id, updateUserDto);
+    async updateUserProfile(@Param('id') id: number, @Body() ProfileUserDto: ProfileUserDto) {
+        return this.usersService.updateprofile(id, ProfileUserDto);
     }
 
     @ApiOperation({ summary: 'ลบ User' })
