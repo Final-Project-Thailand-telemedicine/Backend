@@ -1,7 +1,8 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { RoomsService } from './rooms.service';
-import { CreateRoomDto } from './dto/create-room.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CreateNurseRoomDto } from './dto/create-nurse-room.dto';
+import { CreateRoomDto } from './dto/create-room.dto';
+import { RoomsService } from './rooms.service';
 
 @ApiTags('room (ห้อง)')
 @Controller('rooms')
@@ -12,6 +13,12 @@ export class RoomsController {
     @Post()
     createRoom(@Body() body: CreateRoomDto) {
         return this.roomService.createRoom(body);
+    }
+
+    @ApiOperation({ summary: 'สร้างห้อง' })
+    @Post('nurse')
+    createRoomNurse(@Body() body: CreateNurseRoomDto) {
+        return this.roomService.createRoomNurse(body);
     }
 
     @ApiOperation({ summary: 'ดูห้องทั้งหมด' })
@@ -33,7 +40,7 @@ export class RoomsController {
     }
 
     @ApiOperation({ summary: 'ดูห้องของผู้ใช้' })
-    @Get('rooms/:userId')
+    @Get('user/:userId')
     findbyUserId(@Param('userId') userId: number) {
         return this.roomService.findByUserId(userId);
     }

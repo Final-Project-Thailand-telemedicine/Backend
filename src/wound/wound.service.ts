@@ -103,6 +103,8 @@ export class WoundService {
     
             // Step 2: Prediction logic
             const result = await this.Predict_Model_fromFilePath(savedWound.wound_image);
+            console.log(result);
+            
             if (!result || !result.wound_class) {
                 throw new BadRequestException('Prediction failed or wound state not returned.');
             }
