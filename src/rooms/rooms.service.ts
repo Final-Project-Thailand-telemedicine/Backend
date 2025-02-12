@@ -81,10 +81,21 @@ export class RoomsService {
 
     async findByUserId(userId: number): Promise<Room[]> {
         const rooms = await this.roomRepository.find({
-            where: { user: { id: userId } }, // Corrected condition
-            relations: ['owner', 'user'], // Ensure 'users' is included
+            where: { user: { id: userId } }, 
+            relations: ['owner', 'user'], 
         });
     
         return rooms;
+    }
+
+    async getPerusalId(roomId: number) {        
+        const rooms = await this.roomRepository.find({
+            where: { id:roomId }, 
+            relations: ['perusal'], 
+        });
+
+        const perusal_id ={perusal_id:rooms[0].perusal.id};
+    
+        return perusal_id;
     }
 }

@@ -21,7 +21,7 @@ export class RoomsController {
     }
 
     @ApiOperation({ summary: 'เข้าห้อง' })
-    @Get(':roomId/:userId')
+    @Get('join/:roomId/:userId')
     joinRoom(@Param('roomId') roomId: number, @Param('userId') userId: number) {
         return this.roomService.joinRoom(roomId, userId);
     }
@@ -33,8 +33,14 @@ export class RoomsController {
     }
 
     @ApiOperation({ summary: 'ดูห้องของผู้ใช้' })
-    @Get(':userId')
+    @Get('rooms/:userId')
     findbyUserId(@Param('userId') userId: number) {
         return this.roomService.findByUserId(userId);
+    }
+
+    @ApiOperation({ summary: 'ดูการตรวจ by roomId' })
+    @Get('perusal/:roomId')
+    findPerusalbyRoomID(@Param('roomId') roomId: number) {
+        return this.roomService.getPerusalId(roomId);
     }
 }
