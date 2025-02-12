@@ -16,15 +16,17 @@ export class AuthService {
     ) { }
 
     async signIn(authDto: AuthDto) {
-        
+
         const decrypt_password = await Helper.decryptData(authDto.password);
         const user = await this.usersService.findBySSID(authDto.ssid);
+        console.log(user);
+
         if (!user) throw new UnauthorizedException('ssid or password is not correct');
 
         const passwordMatches = await argon2.verify(user.password, decrypt_password);
         if (!passwordMatches) throw new UnauthorizedException('ssid or password is not correct');
 
-        const tokens = await this.getTokens(user.id, user.ssid);
+        const tokens = await this.getTokens(user.id, user.ssid, user.role[0].id);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return {
@@ -32,10 +34,10 @@ export class AuthService {
         };
     }
 
-    async getTokens(userId: number, ssid: string) {
+    async getTokens(userId: number, ssid: string, roleId: number) {
         const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.signAsync({ Uid: userId, ssid }, { secret: this.configService.get<string>('JWT_ACCESS_SECRET'), expiresIn: '1y' }),
-            this.jwtService.signAsync({ Uid: userId, ssid }, { secret: this.configService.get<string>('JWT_REFRESH_SECRET'), expiresIn: '2y' })
+            this.jwtService.signAsync({ Uid: userId, ssid, roleId }, { secret: this.configService.get<string>('JWT_ACCESS_SECRET'), expiresIn: '1y' }),
+            this.jwtService.signAsync({ Uid: userId, ssid, roleId }, { secret: this.configService.get<string>('JWT_REFRESH_SECRET'), expiresIn: '2y' })
         ]);
 
         return {
@@ -71,7 +73,7 @@ export class AuthService {
             refreshToken,
         );
         if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
-        const tokens = await this.getTokens(user.id, user.ssid);
+        const tokens = await this.getTokens(user.id, user.ssid, user.role[0].id);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
         return tokens;
     }
@@ -82,7 +84,7 @@ export class AuthService {
         const user = await this.usersService.findBySSID(data.username);
         if (!user) throw new UnauthorizedException('user not found');
 
-        const tokens = await this.getTokens(user.id, user.ssid);
+        const tokens = await this.getTokens(user.id, user.ssid, user.role[0].id);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
         return tokens;
     }

@@ -36,7 +36,7 @@ export class UsersService {
     findBySSID(ssid: string) {
         return this.userRepository.findOne({
             where: { ssid },
-            relations: { role: {} }
+            relations: ["role"],
         });
     }
 
