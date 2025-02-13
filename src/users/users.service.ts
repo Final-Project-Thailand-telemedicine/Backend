@@ -14,7 +14,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ProfileUserDto } from './dto/profile-user.dto';
 
 export const USER_PAGINATION_CONFIG: PaginateConfig<User> = {
-    sortableColumns: ['id', 'createdAt', 'updatedAt'],
+    sortableColumns: ['id', 'first_name', 'last_name', 'ssid', 'sex', 'createdAt', 'updatedAt'],
     select: ['id', 'first_name', 'last_name', 'ssid', 'sex', 'profile_image', 'createdAt', 'updatedAt'],
 };
 @Injectable()
@@ -63,7 +63,7 @@ export class UsersService {
     }
 
     async getProfilebytoken(accessToken: string) {
-        
+
         const data = this.jwtService.decode(accessToken);
         const user = await this.userRepository.findOne({
             where: { id: data.Uid },
@@ -79,7 +79,7 @@ export class UsersService {
     async create(createUserDto: CreateUserDto) {
 
         const decrypt_password = await Helper.decryptData(createUserDto.password);
-        
+
         const SSIDExists = await this.userRepository.findOne({ where: { ssid: createUserDto.ssid } });
         if (SSIDExists) throw new BadRequestException('SSID already exists');
 
@@ -109,7 +109,7 @@ export class UsersService {
 
 
     async update(id: number, updateUserDto: UpdateUserDto) {
-        
+
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new BadRequestException('User not found');
         const decrypt_password = await Helper.decryptData(updateUserDto.password);
@@ -130,7 +130,7 @@ export class UsersService {
     }
 
     async updateprofile(id: number, profileUserDto: ProfileUserDto) {
-        
+
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new BadRequestException('User not found');
 
@@ -181,24 +181,28 @@ export class UsersService {
 
     async getPagebyRole(query: PaginateQuery, roleId: number): Promise<Paginated<User>> {
         try {
+            console.log('Raw Query:', query);
+
+            // Parse sortBy if it's a JSON string
+            console.log('decode Query:', query);
             const queryBuilder = this.userRepository.createQueryBuilder('user')
-                .innerJoinAndSelect('user.role', 'role') 
+                .innerJoinAndSelect('user.role', 'role')
                 .where('role.id = :id', { id: roleId });
-            
-            const paginatedResult = await paginate(query, queryBuilder, {
-                ...USER_PAGINATION_CONFIG,
-                relations: ['role'],
-            });
 
-
-            if (!paginatedResult.data.length) {
-                throw new Error(`No users found for role ID ${roleId}`);
+            // Apply search
+            if (query.search  && query.searchBy?.length > 0) {
+                const searchConditions = query.searchBy.map(column => `user.${column} LIKE :search`).join(' OR ');
+                queryBuilder.andWhere(`(${searchConditions})`, { search: `%${query.search}%` });
             }
 
-            return paginatedResult;
+
+            return await paginate(query, queryBuilder, 
+                USER_PAGINATION_CONFIG,
+
+            );
         } catch (error) {
             console.error(`Error fetching users for role ID ${roleId}:`, error);
-            throw new Error('Failed to fetch users for the specified role. Please try again later.');
+            throw new Error('Failed to fetch users for the specified role.');
         }
     }
 
@@ -210,7 +214,7 @@ export class UsersService {
     }
 
     async allPatientsNotinNurse(nurseId: number) {
-    
+
         const patientsNotInNurse = await this.patientNurseRepository.find({
             where: { nurse_id: nurseId },
         });
@@ -221,7 +225,7 @@ export class UsersService {
             where: { role: { id: 2 }, id: Not(In(patientIds)) },
             relations: ["role"],
         });
-    
+
         return patientsNurses;
 
     }
@@ -262,14 +266,14 @@ export class UsersService {
             where: { nurse_id: nurseId },
             relations: ['patient'],
         });
-    
+
         const patientWoundStatus = await Promise.all(
             patientsNurses.map(async (patient) => {
                 const perusals = await this.perusalRepository.find({
                     where: { user: { id: patient.patient_id } },
                     relations: ['wound'],
                 });
-    
+
                 // Determine patient_status
                 let patientStatus = 'เรียบร้อย'; // Default status
                 for (const perusal of perusals) {
@@ -281,7 +285,7 @@ export class UsersService {
                     }
                     if (patientStatus === 'รอตรวจ') break;
                 }
-    
+
                 return {
                     patient_id: patient.patient_id,
                     nurse_id: patient.nurse_id,
@@ -290,7 +294,7 @@ export class UsersService {
                 };
             })
         );
-    
+
         return patientWoundStatus;
     }
 
@@ -299,7 +303,7 @@ export class UsersService {
             where: { patient_id: patientId },
             relations: ['nurse'],
         });
-    
+
         return patientsNurses;
     }
 
@@ -308,10 +312,10 @@ export class UsersService {
             where: { patient_id: patientId, nurse_id: nurseId },
         });
         if (!patientNurse) throw new NotFoundException('Patient-Nurse relationship not found');
-    
+
         return this.patientNurseRepository.delete(patientNurse);
     }
-    
+
 
     async checkssid(ssid: string) {
         const check = Helper.validateThaiSSID(ssid);

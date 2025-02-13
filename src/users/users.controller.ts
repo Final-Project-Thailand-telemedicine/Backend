@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { USER_PAGINATION_CONFIG, UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto'; // Ensure this DTO is created for user registration
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangeFormatToJsonPipe } from 'src/pipes/change-format-to-json/change-format-to-json.pipe';
@@ -72,7 +72,7 @@ export class UsersController {
 
     @ApiOperation({ summary: 'Get User by Role' })
     @Get("/role/:roleId")
-    @ApiPaginationQuery(PERUSAL_PAGINATION_CONFIG)
+    @ApiPaginationQuery(USER_PAGINATION_CONFIG)
     getUserByRole(@Paginate() query: PaginateQuery,@Param('roleId') roleId: number) {
         return this.usersService.getPagebyRole(query, roleId);
     }
