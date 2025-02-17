@@ -92,8 +92,9 @@ export class AuthService {
     async sendOTPmessage(phone: string) {
         console.log(phone);
         
-        var axios = require('axios');
-        var config = {
+        const axios = require('axios');
+    
+        const config = {
             method: 'post',
             url: 'https://portal-otp.smsmkt.com/api/otp-send',
             headers: {
@@ -104,14 +105,18 @@ export class AuthService {
             data: JSON.stringify({
                 "project_key": process.env.SMS_PROJECT_KEY,
                 "phone": phone,
-            })
+            }),
         };
-        axios(config).then(function (response) {
-            return response;
-        }).catch(function (error) {
-            return error;
-        });
+    
+        try {
+            const response = await axios(config);
+            return response.data;
+        } catch (error) {
+            console.error("Error sending OTP:", error);
+            throw new Error("Failed to send OTP");
+        }
     }
+    
 
     async verifyOTPmessage(token: string, otp: string) {
         var axios = require('axios');
@@ -128,10 +133,12 @@ export class AuthService {
                 "otp_code":otp,
             })
         };
-        axios(config).then(function (response) {
+        try {
+            const response = await axios(config);
             return response.data;
-        }).catch(function (error) {
-            return error;
-        });
+        } catch (error) {
+            console.error("Error sending OTP:", error);
+            throw new Error("Failed to send OTP");
+        }
     }
 }

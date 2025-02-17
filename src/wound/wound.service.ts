@@ -364,7 +364,7 @@ export class WoundService {
 
         const allWoundsWithState = wounds.map(wound => ({
             ...wound,
-            remark: diagnoses[0].remark,
+            remark: diagnoses.length > 0 ? diagnoses[diagnoses.length - 1].remark : null,
             wound_state: woundStateMap[wound.id] || null,
         }));
         return allWoundsWithState;
