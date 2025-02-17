@@ -81,11 +81,57 @@ export class AuthService {
     async signInWithToken(accessToken: string) {
         const data = this.jwtService.decode(accessToken);
 
-        const user = await this.usersService.findBySSID(data.username);
+        const user = await this.usersService.findBySSID(data.ssid);
         if (!user) throw new UnauthorizedException('user not found');
 
         const tokens = await this.getTokens(user.id, user.ssid, user.role[0].id);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
         return tokens;
+    }
+
+    async sendOTPmessage(phone: string) {
+        console.log(phone);
+        
+        var axios = require('axios');
+        var config = {
+            method: 'post',
+            url: 'https://portal-otp.smsmkt.com/api/otp-send',
+            headers: {
+                "Content-Type": "application/json",
+                "api_key": process.env.SMS_API_KEY,
+                "secret_key": process.env.SMS_SECRET_KEY,
+            },
+            data: JSON.stringify({
+                "project_key": process.env.SMS_PROJECT_KEY,
+                "phone": phone,
+            })
+        };
+        axios(config).then(function (response) {
+            return response;
+        }).catch(function (error) {
+            return error;
+        });
+    }
+
+    async verifyOTPmessage(token: string, otp: string) {
+        var axios = require('axios');
+        var config = {
+            method: 'post',
+            url: 'https://portal-otp.smsmkt.com/api/otp-validate',
+            headers: {
+                "Content-Type": "application/json",
+                "api_key": process.env.SMS_API_KEY,
+                "secret_key": process.env.SMS_SECRET_KEY,
+            },
+            data:JSON.stringify({
+                "token":token,
+                "otp_code":otp,
+            })
+        };
+        axios(config).then(function (response) {
+            return response.data;
+        }).catch(function (error) {
+            return error;
+        });
     }
 }

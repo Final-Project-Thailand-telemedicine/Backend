@@ -181,10 +181,7 @@ export class UsersService {
 
     async getPagebyRole(query: PaginateQuery, roleId: number): Promise<Paginated<User>> {
         try {
-            console.log('Raw Query:', query);
-
-            // Parse sortBy if it's a JSON string
-            console.log('decode Query:', query);
+            
             const queryBuilder = this.userRepository.createQueryBuilder('user')
                 .innerJoinAndSelect('user.role', 'role')
                 .where('role.id = :id', { id: roleId });
@@ -195,8 +192,7 @@ export class UsersService {
                 queryBuilder.andWhere(`(${searchConditions})`, { search: `%${query.search}%` });
             }
 
-
-            return await paginate(query, queryBuilder, 
+            return await paginate(query, queryBuilder,
                 USER_PAGINATION_CONFIG,
 
             );

@@ -1,10 +1,11 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Auth } from './decorators/auth.decorator';
 import { Request } from 'express';
 import { RefreshTokenGuard } from 'src/common/guards/refresh-token.guard';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 @ApiTags('Auth (การยืนยันตัวตน)')
 @Controller('auth')
@@ -37,5 +38,17 @@ export class AuthController {
     @Post('sign-in-with-token')
     signInWithToken(@Body() body: { accessToken: string }) {
         return this.authService.signInWithToken(body.accessToken);
+    }
+
+    @ApiOperation({ summary: 'ส่ง otp' })
+    @Get('send-otp/:phone')
+    sendOTP(@Param('phone') phone: string) {
+        return this.authService.sendOTPmessage(phone);
+    }
+
+    @ApiOperation({ summary: 'ยืนยัน otp' })
+    @Post('verify-otp')
+    verifyOTP(@Body() body: VerifyOtpDto) {
+        return this.authService.verifyOTPmessage(body.token, body.otp);
     }
 }
