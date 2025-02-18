@@ -10,6 +10,7 @@ import { RoomsService } from 'src/rooms/rooms.service';
 import { Server, WebSocket } from 'ws';
 import { ChatsService } from './chats.service';
 import { MessageType } from './entity/chat.entity';
+import { UsersService } from 'src/users/users.service';
 import { send } from 'process';
 
 @WebSocketGateway({
@@ -20,7 +21,8 @@ import { send } from 'process';
 export class ChatGateway {
     constructor(
         private readonly roomService: RoomsService,
-        private readonly chatService: ChatsService
+        private readonly chatService: ChatsService,
+        private readonly userService: UsersService,
     ) { }
     @WebSocketServer()
     server: Server;
@@ -61,20 +63,21 @@ export class ChatGateway {
     }
 
     @SubscribeMessage('sendMessage')
-    handleMessage(@MessageBody() data: { roomId: number; sendId: number; message: string; imageUrl: string; messageType: string }, @ConnectedSocket() client: WebSocket) {
+    async handleMessage(@MessageBody() data: { roomId: number; sendId: number; message: string; imageUrl: string; messageType: string }, @ConnectedSocket() client: WebSocket) {
         console.log(data);
         
         const roomKey = `room_${data.roomId}`;
         const clients = this.rooms.get(roomKey);
+        const fullname = await this.userService.findfullnamebyId(data.sendId) || 'Unknown';
         
         if (clients) {
             if (data.messageType === MessageType.Image) {
                 for (const roomClient of clients) {
-                    roomClient.send(JSON.stringify({ event: 'image',sendId: data.sendId, image: data.imageUrl }));
+                    roomClient.send(JSON.stringify({ event: 'image',sendId: data.sendId, image: data.imageUrl ,fullname: fullname }));
                 }
             }else if (data.messageType === MessageType.Text) {
                 for (const roomClient of clients) {
-                    roomClient.send(JSON.stringify({ event: 'text',sendId: data.sendId, message: data.message }));
+                    roomClient.send(JSON.stringify({ event: 'text',sendId: data.sendId, message: data.message ,fullname: fullname }));
                 }
             }
 

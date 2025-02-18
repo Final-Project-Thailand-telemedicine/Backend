@@ -317,4 +317,16 @@ export class UsersService {
         const check = Helper.validateThaiSSID(ssid);
         return check;
     }
+
+    async findfullnamebyId(id: number) {
+        const user = await this.userRepository.findOne({
+            where: { id },
+            select: ["first_name", "last_name"],
+        });
+
+        if (!user) throw new BadRequestException('User not found');
+        console.log(user);
+        
+        return user.first_name + " " + user.last_name;
+    }
 }
