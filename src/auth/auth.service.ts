@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -90,8 +90,9 @@ export class AuthService {
     }
 
     async sendOTPmessage(phone: string) {
-        console.log(phone);
         
+        const uid = await this.usersService.findUserIdbyPhone(phone); // Now correctly throws an error if user is not found
+    
         const axios = require('axios');
     
         const config = {
@@ -110,12 +111,15 @@ export class AuthService {
     
         try {
             const response = await axios(config);
-            return response.data;
+            
+            return {...response.data, uid:uid};
         } catch (error) {
-            console.error("Error sending OTP:", error);
-            throw new Error("Failed to send OTP");
+            console.error("Error sending OTP:", error?.response?.data || error.message);
+            throw new InternalServerErrorException("Failed to send OTP");
         }
     }
+    
+    
     
 
     async verifyOTPmessage(token: string, otp: string) {

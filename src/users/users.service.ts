@@ -83,6 +83,9 @@ export class UsersService {
         const SSIDExists = await this.userRepository.findOne({ where: { ssid: createUserDto.ssid } });
         if (SSIDExists) throw new BadRequestException('SSID already exists');
 
+        const phoneExists = await this.userRepository.findOne({ where: { phone: createUserDto.phone } });
+        if (phoneExists) throw new BadRequestException('Phone number already exists');
+
         //check format SSID
         const check = Helper.validateThaiSSID(String(createUserDto.ssid));
         if (!check) throw new BadRequestException('Invalid SSID format');
@@ -328,5 +331,18 @@ export class UsersService {
         console.log(user);
         
         return user.first_name + " " + user.last_name;
+    }
+
+    async findUserIdbyPhone(phone: string) {
+        const user = await this.userRepository.findOne({
+            where: { phone: phone },
+            select: ["id"],
+        });
+    
+        if (!user) {
+            throw new BadRequestException('User not found');
+        }
+    
+        return user.id;
     }
 }

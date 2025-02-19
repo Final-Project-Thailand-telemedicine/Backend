@@ -64,7 +64,6 @@ export class ChatGateway {
 
     @SubscribeMessage('sendMessage')
     async handleMessage(@MessageBody() data: { roomId: number; sendId: number; message: string; imageUrl: string; messageType: string }, @ConnectedSocket() client: WebSocket) {
-        console.log(data);
         
         const roomKey = `room_${data.roomId}`;
         const clients = this.rooms.get(roomKey);

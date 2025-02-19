@@ -4,13 +4,14 @@ import { Diagnosis } from "src/diagnosis/entity/diagnosis.entity";
 import { Perusal } from "src/perusal/entity/perusal.entity";
 import { Role } from "src/roles/entity/role.entity";
 import { Room } from "src/rooms/entity/room.entity";
-import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, Index, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { PatientNurse } from "./patientnurse.entity";
 
 @Entity()
 export class User extends CustomBaseEntity {
 
     @Column()
+    @Unique(["ssid"])
     ssid: string;
 
     @Column()
