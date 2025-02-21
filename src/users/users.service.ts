@@ -116,6 +116,24 @@ export class UsersService {
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new BadRequestException('User not found');
 
+        if (updateUserDto.phone) {
+            const existingUserWithPhone = await this.userRepository.findOne({ 
+                where: { phone: updateUserDto.phone, id: Not(id) } 
+            });
+            if (existingUserWithPhone) {
+                throw new BadRequestException('เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว');
+            }
+        }
+    
+        if (updateUserDto.ssid) {
+            const existingUserWithSsid = await this.userRepository.findOne({ 
+                where: { ssid: updateUserDto.ssid, id: Not(id) } 
+            });
+            if (existingUserWithSsid) {
+                throw new BadRequestException('เลขบัตรประชาชนนี้ถูกใช้งานแล้ว');
+            }
+        }
+
         let decrypt_password = '';
         if (updateUserDto.password){
             decrypt_password = await Helper.decryptData(updateUserDto.password);
