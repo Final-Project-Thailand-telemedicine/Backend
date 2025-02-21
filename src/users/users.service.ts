@@ -115,9 +115,15 @@ export class UsersService {
 
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new BadRequestException('User not found');
-        const decrypt_password = await Helper.decryptData(updateUserDto.password);
 
+        let decrypt_password = '';
+        if (updateUserDto.password){
+            decrypt_password = await Helper.decryptData(updateUserDto.password);
+        }
+        
         if (decrypt_password && decrypt_password.trim() !== '') {
+            console.log(decrypt_password);
+            
             const hashedPassword = await argon2.hash(decrypt_password);
 
             return this.userRepository.update(id, {
