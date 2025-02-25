@@ -103,7 +103,7 @@ export class UsersService {
         // Assign role if provided
         if (createUserDto.roleId) {
             const role = await this.roleReopository.findOne({ where: { id: createUserDto.roleId } });
-            if (!role) throw new BadRequestException('Role not found');
+            if (!role) throw new BadRequestException('ไม่พบตำแหน่งนี้ในระบบ');
             user.role.push(role);
         }
 
@@ -160,8 +160,25 @@ export class UsersService {
 
     async updateprofile(id: number, profileUserDto: ProfileUserDto) {
 
+        if (profileUserDto.phone) {
+            const existingUserWithPhone = await this.userRepository.findOne({ 
+                where: { phone: profileUserDto.phone, id: Not(id) } 
+            });
+            if (existingUserWithPhone) {
+                throw new BadRequestException('เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว');
+            }
+        }
+    
+        if (profileUserDto.ssid) {
+            const existingUserWithSsid = await this.userRepository.findOne({ 
+                where: { ssid: profileUserDto.ssid, id: Not(id) } 
+            });
+            if (existingUserWithSsid) {
+                throw new BadRequestException('เลขบัตรประชาชนนี้ถูกใช้งานแล้ว');
+            }
+        }
         const user = await this.userRepository.findOne({ where: { id } });
-        if (!user) throw new BadRequestException('User not found');
+        if (!user) throw new BadRequestException('ไม่พบผู้ใช้คนนี้ในระบบ');
 
         return this.userRepository.update(id, {
             password: user.password,

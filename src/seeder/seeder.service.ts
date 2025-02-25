@@ -40,8 +40,7 @@ export class SeederService {
         const roles = this.roleRepository.create([
             { id: 1, name: 'Admin', description: 'Administrator', permission: permission },
             { id: 2, name: 'patient', description: 'คนไข้', permission: [permission[0]] },
-            { id: 3, name: 'nurse', description: 'พยาบาล', permission: [permission[0], permission[1], permission[2]] },
-            { id: 4, name: 'doctor', description: 'หมอ', permission: [permission[0], permission[1], permission[2]] },
+            { id: 3, name: 'nurse', description: 'พยาบาล', permission: [permission[0], permission[1], permission[2]] }
         ]);
 
         await this.roleRepository.save(roles);
@@ -72,8 +71,8 @@ export class SeederService {
             {
                 id: 1
                 , ssid: '1309903087352'
-                , sex: 'Male'
-                , phone: "1111111111"
+                , sex: 'ชาย'
+                , phone: "0917799860"
                 , first_name: 'Admin'
                 , last_name: 'Admin'
                 , birthdate: new Date()
@@ -84,10 +83,10 @@ export class SeederService {
             {
                 id: 2
                 , ssid: '8391227711541'
-                , sex: 'Male'
-                , phone: "1111111111"
-                , first_name: 'patient1'
-                , last_name: 'patient1'
+                , sex: 'หญิง'
+                , phone: "0629876543"
+                , first_name: 'Natcha'
+                , last_name: 'Wongchai'
                 , birthdate: new Date()
                 , password: passwrord
                 , profile_image: 'static/profile.jpg'
@@ -96,10 +95,10 @@ export class SeederService {
             {
                 id: 3
                 , ssid: '6141849336235'
-                , sex: 'Male'
-                , phone: "1111111111"
-                , first_name: 'patient'
-                , last_name: 'patient'
+                , sex: 'ชาย'
+                , phone: "0954567890"
+                , first_name: 'Phattharaphon'
+                , last_name: 'Chaiyakan'
                 , birthdate: new Date()
                 , password: passwrord
                 , profile_image: 'static/profile.jpg'
@@ -108,10 +107,10 @@ export class SeederService {
             {
                 id: 4
                 , ssid: '7061465229253'
-                , sex: 'Male'
-                , phone: "1111111111"
-                , first_name: 'patient'
-                , last_name: 'patient'
+                , sex: 'ชาย'
+                , phone: "0661122334"
+                , first_name: 'Anurak'
+                , last_name: 'Boonmee'
                 , birthdate: new Date()
                 , password: passwrord
                 , profile_image: 'static/profile.jpg'
@@ -120,28 +119,15 @@ export class SeederService {
             {
                 id: 5
                 , ssid: '7102589824404'
-                , sex: 'Male'
-                , phone: "1111111111"
-                , first_name: 'nurse'
-                , last_name: 'nurse'
+                , sex: 'ชาย'
+                , phone: "0998765432"
+                , first_name: 'Suwit'
+                , last_name: 'Thongchai'
                 , birthdate: new Date()
                 , password: passwrord
                 , profile_image: 'static/profile.jpg'
                 , role: [role[2]]
-            },
-            {
-                id: 6
-                , ssid: '2387979313881'
-                , sex: 'Male'
-                , phone: "1111111111"
-                , first_name: 'doctor'
-                , last_name: 'doctor'
-                , birthdate: new Date()
-                , password: passwrord
-                , profile_image: 'static/profile.jpg'
-                , role: [role[3]]
             }
-
         ]);
 
         await this.userRepository.save(users);
