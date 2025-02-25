@@ -169,6 +169,8 @@ export class UsersService {
             if (existingUserWithPhone) {
                 throw new BadRequestException('เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว');
             }
+            const check = Helper.isValidThaiPhoneNumber(profileUserDto.phone);
+            if (!check) throw new BadRequestException('เบอร์โทรศัพท์ไม่ถูกต้อง');
         }
 
         if (profileUserDto.ssid) {
@@ -178,6 +180,8 @@ export class UsersService {
             if (existingUserWithSsid) {
                 throw new BadRequestException('เลขบัตรประชาชนนี้ถูกใช้งานแล้ว');
             }
+            const check = Helper.validateThaiSSID(String(profileUserDto.ssid));
+            if (!check) throw new BadRequestException('เลขบัตรประชาชนไม่ถูกต้อง');
         }
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new BadRequestException('ไม่พบผู้ใช้คนนี้ในระบบ');
