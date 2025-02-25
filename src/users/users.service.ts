@@ -90,6 +90,8 @@ export class UsersService {
         const check = Helper.validateThaiSSID(String(createUserDto.ssid));
         if (!check) throw new BadRequestException('เลขบัตรประชาชนไม่ถูกต้อง');
 
+        const check2 = Helper.isValidThaiPhoneNumber(createUserDto.phone);
+        if (!check2) throw new BadRequestException('เบอร์โทรศัพท์ไม่ถูกต้อง');
         // Hash the password
         const hashedPassword = await argon2.hash(decrypt_password);
 
@@ -113,37 +115,37 @@ export class UsersService {
 
     async update(id: number, updateUserDto: UpdateUserDto) {
         console.log(updateUserDto);
-        
+
 
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new BadRequestException('ไม่พบผู้ใช้คนนี้ในระบบ');
 
         if (updateUserDto.phone) {
-            const existingUserWithPhone = await this.userRepository.findOne({ 
-                where: { phone: updateUserDto.phone, id: Not(id) } 
+            const existingUserWithPhone = await this.userRepository.findOne({
+                where: { phone: updateUserDto.phone, id: Not(id) }
             });
-            if (existingUserWithPhone) {
-                throw new BadRequestException('เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว');
-            }
+            if (existingUserWithPhone) throw new BadRequestException('เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว');
+            const check = Helper.isValidThaiPhoneNumber(updateUserDto.phone);
+            if (!check) throw new BadRequestException('เบอร์โทรศัพท์ไม่ถูกต้อง');
         }
-    
+
         if (updateUserDto.ssid) {
-            const existingUserWithSsid = await this.userRepository.findOne({ 
-                where: { ssid: updateUserDto.ssid, id: Not(id) } 
+            const existingUserWithSsid = await this.userRepository.findOne({
+                where: { ssid: updateUserDto.ssid, id: Not(id) }
             });
-            if (existingUserWithSsid) {
-                throw new BadRequestException('เลขบัตรประชาชนนี้ถูกใช้งานแล้ว');
-            }
+            if (existingUserWithSsid) throw new BadRequestException('เลขบัตรประชาชนนี้ถูกใช้งานแล้ว');
+            const check = Helper.validateThaiSSID(String(updateUserDto.ssid));
+            if (!check) throw new BadRequestException('เลขบัตรประชาชนไม่ถูกต้อง');
         }
 
         let decrypt_password = '';
-        if (updateUserDto.password){
+        if (updateUserDto.password) {
             decrypt_password = await Helper.decryptData(updateUserDto.password);
         }
-        
+
         if (decrypt_password && decrypt_password.trim() !== '') {
             console.log(decrypt_password);
-            
+
             const hashedPassword = await argon2.hash(decrypt_password);
 
             return this.userRepository.update(id, {
@@ -161,17 +163,17 @@ export class UsersService {
     async updateprofile(id: number, profileUserDto: ProfileUserDto) {
 
         if (profileUserDto.phone) {
-            const existingUserWithPhone = await this.userRepository.findOne({ 
-                where: { phone: profileUserDto.phone, id: Not(id) } 
+            const existingUserWithPhone = await this.userRepository.findOne({
+                where: { phone: profileUserDto.phone, id: Not(id) }
             });
             if (existingUserWithPhone) {
                 throw new BadRequestException('เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว');
             }
         }
-    
+
         if (profileUserDto.ssid) {
-            const existingUserWithSsid = await this.userRepository.findOne({ 
-                where: { ssid: profileUserDto.ssid, id: Not(id) } 
+            const existingUserWithSsid = await this.userRepository.findOne({
+                where: { ssid: profileUserDto.ssid, id: Not(id) }
             });
             if (existingUserWithSsid) {
                 throw new BadRequestException('เลขบัตรประชาชนนี้ถูกใช้งานแล้ว');
@@ -227,13 +229,13 @@ export class UsersService {
 
     async getPagebyRole(query: PaginateQuery, roleId: number): Promise<Paginated<User>> {
         try {
-            
+
             const queryBuilder = this.userRepository.createQueryBuilder('user')
                 .innerJoinAndSelect('user.role', 'role')
                 .where('role.id = :id', { id: roleId });
 
             // Apply search
-            if (query.search  && query.searchBy?.length > 0) {
+            if (query.search && query.searchBy?.length > 0) {
                 const searchConditions = query.searchBy.map(column => `user.${column} LIKE :search`).join(' OR ');
                 queryBuilder.andWhere(`(${searchConditions})`, { search: `%${query.search}%` });
             }
@@ -372,7 +374,7 @@ export class UsersService {
 
         if (!user) throw new BadRequestException('User not found');
         console.log(user);
-        
+
         return user.first_name + " " + user.last_name;
     }
 
@@ -381,11 +383,11 @@ export class UsersService {
             where: { phone: phone },
             select: ["id"],
         });
-    
+
         if (!user) {
             throw new BadRequestException('User not found');
         }
-    
+
         return user.id;
     }
 }

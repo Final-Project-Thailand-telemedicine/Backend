@@ -71,6 +71,10 @@ export class Helper {
         return checkDigit === parseInt(ssid.charAt(12));
     }
 
+    static isValidThaiPhoneNumber(phoneNumber) {
+        const thaiPhoneRegex = /^(?:\+66|0)[2689]\d{7,8}$/;
+        return thaiPhoneRegex.test(phoneNumber);
+    }
     static decryptData(encryptedData: string): string {
 
         const privateKey = readFileSync(process.env.PRIVATE_KEY_PATH, 'utf-8');
