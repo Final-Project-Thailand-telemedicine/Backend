@@ -47,7 +47,7 @@ export class UsersService {
             relations: ["role"],
         });
 
-        if (!user) throw new BadRequestException('User not found');
+        if (!user) throw new BadRequestException('ไม่พบผู้ใช้คนนี้ในระบบ');
         return user;
     }
 
@@ -58,7 +58,7 @@ export class UsersService {
             select: ["id", "first_name", "last_name", "ssid", "profile_image"],
         });
 
-        if (!user) throw new BadRequestException('User not found');
+        if (!user) throw new BadRequestException('ไม่พบผู้ใช้คนนี้ในระบบ');
         return user;
     }
 
@@ -71,7 +71,7 @@ export class UsersService {
             select: ["id", "first_name", "last_name", "ssid", "profile_image"],
         });
 
-        if (!user) throw new BadRequestException('User not found');
+        if (!user) throw new BadRequestException('ไม่พบผู้ใช้คนนี้ในระบบ');
         return user;
     }
 
@@ -81,14 +81,14 @@ export class UsersService {
         const decrypt_password = await Helper.decryptData(createUserDto.password);
 
         const SSIDExists = await this.userRepository.findOne({ where: { ssid: createUserDto.ssid } });
-        if (SSIDExists) throw new BadRequestException('SSID already exists');
+        if (SSIDExists) throw new BadRequestException('เลขบัตรประชาชนนี้ถูกใช้งานแล้ว');
 
         const phoneExists = await this.userRepository.findOne({ where: { phone: createUserDto.phone } });
-        if (phoneExists) throw new BadRequestException('Phone number already exists');
+        if (phoneExists) throw new BadRequestException('เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว');
 
         //check format SSID
         const check = Helper.validateThaiSSID(String(createUserDto.ssid));
-        if (!check) throw new BadRequestException('Invalid SSID format');
+        if (!check) throw new BadRequestException('เลขบัตรประชาชนไม่ถูกต้อง');
 
         // Hash the password
         const hashedPassword = await argon2.hash(decrypt_password);
@@ -116,7 +116,7 @@ export class UsersService {
         
 
         const user = await this.userRepository.findOne({ where: { id } });
-        if (!user) throw new BadRequestException('User not found');
+        if (!user) throw new BadRequestException('ไม่พบผู้ใช้คนนี้ในระบบ');
 
         if (updateUserDto.phone) {
             const existingUserWithPhone = await this.userRepository.findOne({ 
@@ -194,10 +194,10 @@ export class UsersService {
             where: { id: userId },
             relations: ['role'],
         });
-        if (!user) throw new NotFoundException('User not found');
+        if (!user) throw new NotFoundException('ไม่พบผู้ใช้คนนี้ในระบบ');
 
         const role = await this.roleReopository.findOne({ where: { id: roleId } });
-        if (!role) throw new NotFoundException('Role not found');
+        if (!role) throw new NotFoundException('ไม่พบตำแหน่งนี้ในระบบ');
 
         if (user.role.some(existingRole => existingRole.id === role.id)) {
             // Role already assigned to user

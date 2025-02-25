@@ -86,8 +86,8 @@ export class SeederService {
                 , ssid: '8391227711541'
                 , sex: 'Male'
                 , phone: "1111111111"
-                , first_name: 'patient'
-                , last_name: 'patient'
+                , first_name: 'patient1'
+                , last_name: 'patient1'
                 , birthdate: new Date()
                 , password: passwrord
                 , profile_image: 'static/profile.jpg'
