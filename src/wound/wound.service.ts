@@ -349,7 +349,7 @@ export class WoundService {
     async followupByWoundId(woundId: number) {
         const wound = await this.woundRepository.findOneBy({ id: woundId });
         if (!wound) throw new NotFoundException();
-        const wounds = await this.woundRepository.find({ where: { count: wound.count } });
+        const wounds = await this.woundRepository.find({ where: { count: wound.count , perusal:wound.perusal} });
 
         const woundIds = wounds.map(wound => wound.id);
         const diagnoses = await this.diagnosisRepository.find({
