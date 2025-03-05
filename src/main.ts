@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerCustomOptions, SwaggerModule } from '@nestjs/swagger';
 import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
@@ -7,7 +7,11 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api/v0');
+  app.setGlobalPrefix('api/v0',
+    {
+      exclude: [{path: 'api/v1/vacode', method: RequestMethod.GET}],
+    }
+  );
   app.useGlobalPipes(new ValidationPipe());
 
   app.enableCors();

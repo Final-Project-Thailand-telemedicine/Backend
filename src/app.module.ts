@@ -23,6 +23,7 @@ import { NotificationModule } from './notification/notification.module';
 import { TreatModule } from './treat/treat.module';
 import { WoundstateModule } from './woundstate/woundstate.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { HashController } from './hash/hash.controller';
 
 @Module({
   imports: [UsersModule,
@@ -53,7 +54,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     WoundstateModule,
     DashboardModule
   ],
-  controllers: [AppController],
+  controllers: [AppController, HashController],
   providers: [AppService],
 })
 export class AppModule { }
