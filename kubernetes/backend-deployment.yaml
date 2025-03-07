@@ -44,6 +44,12 @@ spec:
                   key: JWT_REFRESH_SECRET
             - name: PRIVATE_KEY_PATH
               value: "/secrets/private.pem"
+            - name: SMS_API_KEY
+              value: "acf971a78aa723fcf98d2f60028b3d8d"
+            - name: SMS_SECRET_KEY
+              value: "CxSLpcI5STir0DVj"
+            - name: SMS_PROJECT_KEY
+              value: "397eb9c8ed"
           resources:
             requests:
               memory: "512Mi"
