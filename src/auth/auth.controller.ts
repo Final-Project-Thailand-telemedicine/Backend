@@ -20,13 +20,6 @@ export class AuthController {
         return this.authService.signIn(authDto);
     }
 
-
-    // @Auth()
-    // @Post('logout')
-    // logout(@Req() req: Request, @Body() body: LogoutDto) {
-    //     return this.authService.logout(req.user['sub'], body.password);
-    // }
-
     @UseGuards(RefreshTokenGuard)
     @Post('refresh')
     refreshTokens(@Req() req: Request) {
